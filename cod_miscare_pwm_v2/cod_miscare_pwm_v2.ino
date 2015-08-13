@@ -3,7 +3,7 @@
 //           Sistem de filtrare eficace [Necesita test]
 //           Micsorarea delay-ului [Necesita test]
 int m3, ok, ch3, c, ch1, m1=1400,m3_pwm_fata,m3_pwm_spate,m1_pwm_stanga,m1_pwm_dreapta,dif1,dif2,marja_frana=50;
-int coeficient_viraj = 0.8; //coeficientul folosit pentru a creea diferenta dintre D si S in virajul combinat
+float coeficient_viraj = 0.25; //coeficientul folosit pentru a creea diferenta dintre D si S in virajul combinat
 float m_fata=0.574;
 float n_fata= 749.52;//n_fata negativ
 float m_spate=-0.48;
@@ -34,24 +34,24 @@ void setup() {
 //Nota: Motoarele incep sa se invarta cand **_PWM_**** == 100. (Ex: m3_pwm_fata == 100)
 
 void medie_pwm_fata(){
-  m3_pwm_fata=m_fata * m3 - n_fata;  Serial.println(m3_pwm_fata);
+  m3_pwm_fata=m_fata * m3 - n_fata;
   if(m3_pwm_fata>255) m3_pwm_fata=255; Serial.println(m3_pwm_fata);
 }
 void medie_pwm_spate(){
-  m3_pwm_spate=m_spate * m3 + n_spate;  Serial.println(m3_pwm_spate);
-  if(m3_pwm_spate>255) m3_pwm_fata=255; Serial.println(m3_pwm_fata);
+  m3_pwm_spate=m_spate * m3 + n_spate;  
+  if(m3_pwm_spate>255) m3_pwm_fata=255; 
 
 
 }
 void medie_pwm_dreapta(){
-   m1_pwm_dreapta=m_dreapta * m1 + n_dreapta;  Serial.println(m1_pwm_dreapta);
+   m1_pwm_dreapta=m_dreapta * m1 + n_dreapta;  
    if(m1_pwm_dreapta>255) m1_pwm_dreapta=255; Serial.println(m1_pwm_dreapta);
 
 
 }
 
 void medie_pwm_stanga(){
-   m1_pwm_stanga=m_stanga * m1 + n_stanga;  Serial.println(m1_pwm_stanga);
+   m1_pwm_stanga=m_stanga * m1 + n_stanga;  
    if(m1_pwm_stanga>255) m1_pwm_stanga=255; Serial.println(m1_pwm_stanga);
 
 }
@@ -67,7 +67,7 @@ void citire_medie(){
      m1 = (m1 + ch1) / 2;
      if(c==1) dif1=ch3;
      if(c==10) dif2=ch3;
-//     if((dif2-dif1) > marja_frana ) frana();
+     if((dif2-dif1) > marja_frana ) frana();
    }
    ok=true;
    c=0;
@@ -81,20 +81,21 @@ void citire_medie(){
 void comandaST_FATA(){
 
   if((m1 > 1600) && (m3 > 1470)){
-    medie_pwm_fata();
-    medie_pwm_stanga();
+      medie_pwm_fata();
+      medie_pwm_stanga();
+      Serial.println("Comanda ST_FATA");
 
-    analogWrite(2, m3_pwm_fata*coeficient_viraj);
-    digitalWrite(3, LOW);
+      analogWrite(2, m3_pwm_fata*coeficient_viraj);
+      digitalWrite(3, LOW);
 
-   analogWrite(4, m1_pwm_stanga);
-   digitalWrite(5, LOW);
+     analogWrite(4, m1_pwm_stanga);
+     digitalWrite(5, LOW);
 
-    analogWrite(6, m3_pwm_fata*coeficient_viraj);
-    digitalWrite(7, LOW);
+      analogWrite(6, m3_pwm_fata*coeficient_viraj);
+      digitalWrite(7, LOW);
 
-    analogWrite(8, m1_pwm_stanga);
-    digitalWrite(9, LOW);
+      analogWrite(8, m1_pwm_stanga);
+      digitalWrite(9, LOW);
   }
 }
 
@@ -103,9 +104,10 @@ void comandaST_FATA(){
 
 void comandaST_SPATE(){
 
-  if((m1 > 1600) && (m3 < 1430 && m3>100)){
+  if((m1 > 1600) && (m3 < 1430 && m3>1000)){
     medie_pwm_spate();
     medie_pwm_stanga();
+    Serial.println("Comanda ST_spate");
 
     digitalWrite(2, LOW);
     analogWrite(3, m3_pwm_spate*coeficient_viraj);
@@ -128,17 +130,18 @@ void comandaDR_FATA(){
   if((m1 < 1450 && m1 > 1000) && (m3 > 1470)){
     medie_pwm_fata();
     medie_pwm_dreapta();
+    Serial.println("Comanda DR_fata");
 
     analogWrite(2, m1_pwm_dreapta); //pwm_dreapta
     digitalWrite(3, LOW);
 
-    analogWrite(4, m3_pwm_fata*coeficient_viraj);
+    analogWrite(4, m3_pwm_fata*coeficient_viraj); Serial.println(m3_pwm_fata*coeficient_viraj);
     digitalWrite(5, LOW);
 
     analogWrite(6, m1_pwm_dreapta); //pwm_drapta
     digitalWrite(7, LOW);
 
-    analogWrite(8, m3_pwm_fata*coeficient_viraj);
+    analogWrite(8, m3_pwm_fata*coeficient_viraj); Serial.println(m3_pwm_fata*coeficient_viraj);
     digitalWrite(9, LOW);
 
 
@@ -147,8 +150,8 @@ void comandaDR_FATA(){
 }
 
 void comandaDR_SPATE(){
-  if((m1 < 1450 && m1 > 1000)&&(m3 < 1430 && m3>100)){
-
+  if((m1 < 1450 && m1 > 1000)&&(m3 < 1430 && m3>1000)){
+    Serial.println("Comanda DR_spate");
     medie_pwm_spate();
     medie_pwm_dreapta();
 
@@ -172,8 +175,9 @@ void comandaDR_SPATE(){
 //Functia folosita pentru virare Stanga-Dreapta "CAZ 1"
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 void comandaSTDR(){
-  if(m1 > 1600){ //Stanga
+  if(m1 > 1600 && !(m3 > 1470 || m3 < 1430)){ //Stanga
     medie_pwm_stanga();
+    Serial.println("Comanda Stanga simpla");
     digitalWrite(2, LOW);
     analogWrite(3, m1_pwm_stanga);
     analogWrite(4, m1_pwm_stanga);
@@ -184,7 +188,8 @@ void comandaSTDR(){
     digitalWrite(9, LOW); //functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
 
   }
-  else if(m1 < 1450 && m1 > 1000){ //Dreapta
+  else if((m1 < 1450 && m1 > 1000) && !(m3 > 1470 || m3 < 1430) ){ //Dreapta
+    Serial.println("Comanda Dreapta simpla");
     medie_pwm_dreapta(); //functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     analogWrite(2, m1_pwm_dreapta);
     digitalWrite(3, LOW);
@@ -201,7 +206,8 @@ void comandaSTDR(){
 
 //Functia folosita pentru miscarea-fata spate
 void comandaFATA_SPATE(){
-  if(m3 > 1470){ //fata
+  if(m3 > 1490 && !(m1 > 1600 || m1 < 1465)){ //fata
+    Serial.println("Comanda fata simpla");
     medie_pwm_fata(); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     analogWrite(2, m3_pwm_fata);
     digitalWrite(3, LOW);
@@ -213,8 +219,9 @@ void comandaFATA_SPATE(){
     digitalWrite(9, LOW);
   }
 
-  else if(m3 < 1430 && m3>100) { //Miscare spate
+  else if((m3 < 1430 && m3>1000)&&!(m1 > 1600 || m1 < 1465)) { //Miscare spate
     medie_pwm_spate(); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
+    Serial.println("Comanda spate simpla");
     digitalWrite(2, LOW);
     analogWrite(3, m3_pwm_spate);
     digitalWrite(4, LOW);
@@ -255,8 +262,8 @@ void afisare(){
 void principal(){
  if(ok!=true) citire_medie();
   else{
-    if(m1 > 1600 || m1 < 1465 || m3 > 1470 || m3 < 1430){
-      comandaST_FATA(); //cazul 2 de virare, pentru stanga+fata
+    if(m1 > 1600 || m1 < 1465 || m3 > 1470 || m3 < 1430){ //verifica daca e joystickul centrat
+      comandaST_FATA(); //cazul 2 de virare, pentru stanga+fata 
       comandaST_SPATE(); //cazul 2 de virare, pentru stanga+spate
       comandaDR_FATA(); //cazul 2 de virare, pentru dreapta+fata
       comandaDR_SPATE(); //cazul 2 de virare, pentru dreapta+fata
