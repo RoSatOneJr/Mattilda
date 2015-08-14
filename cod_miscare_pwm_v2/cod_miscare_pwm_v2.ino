@@ -1,11 +1,11 @@
 //Versiunea 2.0 a codului pentru miscare pwm.
-//Obiective: Sistem de virare combinat (vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1) [DONE]
-//           Sistem de filtrare eficace [Necesita test]
-//           Micsorarea delay-ului [Necesita test]
+//Obiective [ALL DONE]: Sistem de virare combinat (vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1) [DONE]
+//           Frana eficienta [DONE]
+//           Micsorarea delay-ului [DONE]
 int m3, ok, ch3, c, ch1, m1=1400,m3_pwm_fata,m3_pwm_spate,m1_pwm_stanga,m1_pwm_dreapta,dif1,dif2,marja_frana=50;
 float coeficient_viraj = 0.25; //coeficientul folosit pentru a creea diferenta dintre D si S in virajul combinat
-float m_fata=0.574;
-float n_fata= 749.52;//n_fata negativ
+float m_fata=0.574;           //Nota:Coeficientul in schma v1 e 0.8, dar cu 0.8 nu functioneaza
+float n_fata= -749.52;
 float m_spate=-0.48;
 float n_spate=758.75;
 float m_dreapta = -0.48;
@@ -34,7 +34,7 @@ void setup() {
 //Nota: Motoarele incep sa se invarta cand **_PWM_**** == 100. (Ex: m3_pwm_fata == 100)
 
 void medie_pwm_fata(){
-  m3_pwm_fata=m_fata * m3 - n_fata;
+  m3_pwm_fata=m_fata * m3 + n_fata;
   if(m3_pwm_fata>255) m3_pwm_fata=255; Serial.println(m3_pwm_fata);
 }
 void medie_pwm_spate(){
@@ -176,7 +176,7 @@ void comandaDR_SPATE(){
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 void comandaSTDR(){
   if(m1 > 1600 && !(m3 > 1470 || m3 < 1430)){ //Stanga
-    medie_pwm_stanga();
+    medie_pwm_stanga();//functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Serial.println("Comanda Stanga simpla");
     digitalWrite(2, LOW);
     analogWrite(3, m1_pwm_stanga);
@@ -185,7 +185,7 @@ void comandaSTDR(){
     digitalWrite(6, LOW);
     analogWrite(7, m1_pwm_stanga);
     analogWrite(8, m1_pwm_stanga);
-    digitalWrite(9, LOW); //functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
+    digitalWrite(9, LOW); 
 
   }
   else if((m1 < 1450 && m1 > 1000) && !(m3 > 1470 || m3 < 1430) ){ //Dreapta
