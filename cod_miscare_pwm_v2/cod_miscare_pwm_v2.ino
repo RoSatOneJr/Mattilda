@@ -2,7 +2,7 @@
 //Obiective [ALL DONE]: Sistem de virare combinat (vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1) [DONE]
 //           Frana eficienta [DONE]
 //           Micsorarea delay-ului [DONE]
-int m3, ok, ch3, c, ch1, m1=1400,m3_pwm_fata,m3_pwm_spate,m1_pwm_stanga,m1_pwm_dreapta,dif1,dif2,marja_frana=50;
+int m3, ok, ch3, c, ch1, m1,m3_pwm_fata,m3_pwm_spate,m1_pwm_stanga,m1_pwm_dreapta,dif1,dif2,marja_frana=50;
 float coeficient_viraj = 0.25; //coeficientul folosit pentru a creea diferenta dintre D si S in virajul combinat
 float m_fata=0.574;           //Nota:Coeficientul in schma v1 e 0.8, dar cu 0.8 nu functioneaza
 float n_fata= -749.52;
@@ -25,7 +25,6 @@ void setup() {
   pinMode(9, OUTPUT); //output motor 4_b
 
   ok = false; //bool medie
-  c = 0; //contor medie
 
   Serial.begin(19200); //baud-rate
 }
@@ -38,20 +37,20 @@ void medie_pwm_fata(){
   if(m3_pwm_fata>255) m3_pwm_fata=255; Serial.println(m3_pwm_fata);
 }
 void medie_pwm_spate(){
-  m3_pwm_spate=m_spate * m3 + n_spate;  
-  if(m3_pwm_spate>255) m3_pwm_fata=255; 
+  m3_pwm_spate=m_spate * m3 + n_spate;
+  if(m3_pwm_spate>255) m3_pwm_fata=255;
 
 
 }
 void medie_pwm_dreapta(){
-   m1_pwm_dreapta=m_dreapta * m1 + n_dreapta;  
+   m1_pwm_dreapta=m_dreapta * m1 + n_dreapta;
    if(m1_pwm_dreapta>255) m1_pwm_dreapta=255; Serial.println(m1_pwm_dreapta);
 
 
 }
 
 void medie_pwm_stanga(){
-   m1_pwm_stanga=m_stanga * m1 + n_stanga;  
+   m1_pwm_stanga=m_stanga * m1 + n_stanga;
    if(m1_pwm_stanga>255) m1_pwm_stanga=255; Serial.println(m1_pwm_stanga);
 
 }
@@ -185,7 +184,7 @@ void comandaSTDR(){
     digitalWrite(6, LOW);
     analogWrite(7, m1_pwm_stanga);
     analogWrite(8, m1_pwm_stanga);
-    digitalWrite(9, LOW); 
+    digitalWrite(9, LOW);
 
   }
   else if((m1 < 1450 && m1 > 1000) && !(m3 > 1470 || m3 < 1430) ){ //Dreapta
@@ -263,7 +262,7 @@ void principal(){
  if(ok!=true) citire_medie();
   else{
     if(m1 > 1600 || m1 < 1465 || m3 > 1470 || m3 < 1430){ //verifica daca e joystickul centrat
-      comandaST_FATA(); //cazul 2 de virare, pentru stanga+fata 
+      comandaST_FATA(); //cazul 2 de virare, pentru stanga+fata
       comandaST_SPATE(); //cazul 2 de virare, pentru stanga+spate
       comandaDR_FATA(); //cazul 2 de virare, pentru dreapta+fata
       comandaDR_SPATE(); //cazul 2 de virare, pentru dreapta+fata
