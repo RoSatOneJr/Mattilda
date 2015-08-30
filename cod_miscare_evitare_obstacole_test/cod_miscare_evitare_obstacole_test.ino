@@ -80,7 +80,11 @@ int determinare_distanta(){
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
   duration = pulseIn(echoPin, HIGH);
+  if (distanta<=200){
   return distanta = (duration/2) / 29.1;
+  Serial.println(distanta);
+  }
+  else {return distanta = 200; Serial.println("Distanta > 200");}
 }
 
 //Functia folosita pentru virare Stanga+Fata "CAZ 2"
@@ -214,36 +218,44 @@ void comandaSTDR(){
   }
 }
 
+void comandaF_simpla(){
+  Serial.println("Comanda fata simpla");
+  analogWrite(2, m3_pwm_fata);
+  digitalWrite(3, LOW);
+  analogWrite(4, m3_pwm_fata);
+  digitalWrite(5, LOW);
+  analogWrite(6, m3_pwm_fata);
+  digitalWrite(7, LOW);
+  analogWrite(8, m3_pwm_fata);
+  digitalWrite(9, LOW);
+}
+
+
+void comandaS_simpla(){
+  Serial.println("Comanda spate simpla");
+  digitalWrite(2, LOW);
+  analogWrite(3, m3_pwm_spate);
+  digitalWrite(4, LOW);
+  analogWrite(5, m3_pwm_spate);
+  digitalWrite(6, LOW);
+  analogWrite(7, m3_pwm_spate);
+  digitalWrite(8, LOW);
+  analogWrite(9, m3_pwm_spate);
+}
+
+
 //Functia folosita pentru miscarea-fata spate
 void comandaFATA_SPATE(){
   if(m3 > 1490 && !(m1 > 1600 || m1 < 1465)){ //fata
-    Serial.println("Comanda fata simpla");
-    medie_pwm_fata(); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
-    analogWrite(2, m3_pwm_fata);
-    digitalWrite(3, LOW);
-    analogWrite(4, m3_pwm_fata);
-    digitalWrite(5, LOW);
-    analogWrite(6, m3_pwm_fata);
-    digitalWrite(7, LOW);
-    analogWrite(8, m3_pwm_fata);
-    digitalWrite(9, LOW);
+    medie_pwm_fata();
+    comandaF_simpla();
   }
 
   else if((m3 < 1430 && m3>1000)&&!(m1 > 1600 || m1 < 1465)) { //Miscare spate
     medie_pwm_spate(); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
-    Serial.println("Comanda spate simpla");
-    digitalWrite(2, LOW);
-    analogWrite(3, m3_pwm_spate);
-    digitalWrite(4, LOW);
-    analogWrite(5, m3_pwm_spate);
-    digitalWrite(6, LOW);
-    analogWrite(7, m3_pwm_spate);
-    digitalWrite(8, LOW);
-    analogWrite(9, m3_pwm_spate);
+    comandaS_simpla();
   }
-
 }
-
 void frana(){ //Franarea motoarelor prin scurt-circuit
 
     digitalWrite(2, HIGH);
@@ -284,23 +296,23 @@ void principal(){
       else if(determinare_distanta() <= distanta_sigura){
         m1_pwm_stanga=180;
         m1_pwm_dreapta=180;
+        m3_pwm_fata=180;
+        m3_pwm_spate=180;
         comandaST_simpla(); delay(delay_schimbare_directie);
-        distanta_stanga = determinare_distanta();
+        distanta_stanga = determinare_distanta(); Serial.println("Distanta din partea stanga e: ");Serial.print(distanta_stanga);
         comandaDR_simpla(); delay(delay_schimbare_directie*2-100);
-        distanta_dreapta = determinare_distanta();
-        if (distanta_stanga > distanta_dreapta){comandaST_simpla(); delay(delay_schimbare_directie*2);}
-        else{comandaDR_simpla();delay(100);}
+        distanta_dreapta = determinare_distanta(); Serial.println("Distanta din partea dreapta e: ");Serial.print(distanta_dreapta);
+        if (distanta_stanga > distanta_dreapta){comandaST_simpla(); delay(delay_schimbare_directie*2);Serial.println("Merg prin stanga");}
+        else if(distanta_dreapta>distanta_stanga){comandaDR_simpla();delay(100);Serial.println("Merg prin dreapta");}
+          else{comandaF_simpla();delay(500);Serial.println("Distantele sunt egale, o iau in fata");}
+        }
       }
-    }
     else frana();
     afisare();
     ok = false;
-
   }
 }
-
-
-
 void loop() {
    principal();
 }
+
