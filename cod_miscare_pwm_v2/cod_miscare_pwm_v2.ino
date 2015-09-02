@@ -272,7 +272,7 @@ void principal(){
      else {frana();}
     afisare();
     ok = false;
-
+//whatever
   }
 }
 
