@@ -1,4 +1,6 @@
-int m1,m3, ok, ch3, c, ch1,marja_frana=50,i=0, m1_centru, m3_centru,dif1,dif2, m3_fata_max;
+int m1,m3, ok, ch3, c, ch1,marja_frana=50,i=0, m1_centru;
+int m3_centru,dif1,dif2, m3_fata_max, m3_spate_max, m1_stanga_max;
+int m1_dreapta_max,i,m3_fata_min,m3_spate_min,m1_stanga_min,m3_dreapta_min;
 unsigned long current_millis, start_millis;
 
 char inchar;
@@ -9,7 +11,6 @@ void setup() {
   Serial.begin(19200); //baud-rate
 
 }
-
 
 void citire_medie(){
    m3 = pulseIn(48,HIGH,15000); //citire canal 3 telecomanda
@@ -27,7 +28,6 @@ void citire_medie(){
    c=0;
 }
 
-
 void frana(){}
 
 void citire_medie_calibrare(){
@@ -35,14 +35,11 @@ void citire_medie_calibrare(){
    m1 = pulseIn(50, HIGH, 15000); //citire canal 1 telecomanda
    for(int c=1;c<=60;c++){
      ch3 = pulseIn(48,HIGH,15000);
-     m3 += ch3;
+     m3 = (m3 + ch3) / 2;
      ch1 = pulseIn(50,HIGH,15000);
-     m1 += ch1;
+     m1 = (m1 + ch1) / 2;
    }
-   m3 /= 60;
-   m1 /= 60;
 }
-
 
 void afisare(){
   Serial.print("Channel3:");
@@ -54,35 +51,67 @@ void afisare(){
   Serial.println("###########################");
 }
 
+void prelucrare_date(){
+  Serial.print("\n Incep prelucrarea datelor");
+    if(m3_fata_max > m3_spate_max) {m3_fata_min = m3_centru+50;m3_spate_min = m3_centru-50;}
+     else{me_fata_min = m3_centru-50; m3_spate-min=m3_centru+50;}
+    if(m1_stanga_max > m1_dreapta_max){m1_stanga_min=m1_centru+50;m1_dreapta_min=m1_centru-50;}
+      else{m1_stanga_min=m1_centru-50;m1_dreapta_min=m1_centru+50;}
+
+}
 void comenzi(){
   if (Serial.available() > 0) {
         inchar = Serial.read();
           if (inchar == 'c'){
-              start_millis= millis();
-              while(true){
-                current_millis=millis();
-
-                if(current_millis - start_millis < 2500){
+//              start_millis= millis();
+              for(i=0;i<=5;i++){
+//                current_millis=millis();
+                if(i==1){
                   Serial.println("Incep calibrarea.");
-                  Serial.println("\n Tine joystick-ul centrat pentru doua secunde");
-                  delay(500);
+                  Serial.println("\n Tine joystick-ul centrat ");
+                  delay(1000);
                   citire_medie_calibrare();
                   m1_centru = m1;
                   m3_centru = m3;
-                  Serial.println("Valoarile luate: CH1:"); Serial.println(m1);Serial.println("; CH3: ");Serial.println(m3);
+                  Serial.print("\n Valoarile luate: CH1:"); Serial.print(m1);Serial.print("; CH3: ");Serial.print(m3);
               }
-               if((current_millis - start_millis < 5000) && (current_millis - start_millis > 2500)){
+               if(i==2){
                  Serial.println("\n #######################################");
-                 Serial.println("\n Tine joystick-ul in fata doua secunde");
-                 delay(500);
+                 Serial.println("\n Tine joystick-ul in fata ");
+                 delay(1000);
                  citire_medie_calibrare();
                  m3_fata_max = m3;
-                 Serial.println("\n Valoare luata: "); Serial.println(m3);
-               	}
-            }
+                 Serial.print("\n Valoare luata: "); Serial.print(m3_fata_max);
+               }
+              if(i==3){
+                Serial.println("\n #######################################");
+                Serial.println("\n Tine joystick-ul in spate ");
+                delay(1000);
+                citire_medie_calibrare();
+                 m3_spate_max = m3;
+                 Serial.print("\n Valoare luata: "); Serial.print(m3_spate_max);
+              }
+              if(i==4){
+                Serial.println("\n #######################################");
+                Serial.println("\n Tine joystick-ul in stanga ");
+                delay(1000);
+                citire_medie_calibrare();
+                m1_stanga_max = m1;
+                Serial.print("\n Valoare luata: "); Serial.print(m1_stanga_max);
+              }
+               if(i==5){
+                Serial.println("\n #######################################");
+                Serial.println("\n Tine joystick-ul in dreapta");
+                delay(1000);
+                citire_medie_calibrare();
+                m1_dreapta_max = m1;
+                Serial.print("\n Valoare luata: "); Serial.print(m1_dreapta_max); break;
+              }
+              prelucrare_date();
+           }
         }
     }
-}
+  }
 void loop(){
   comenzi();
 }

@@ -4,14 +4,14 @@
 //           Micsorarea delay-ului [DONE]
 int m3, ok, ch3, c, ch1, m1,m3_pwm_fata,m3_pwm_spate,m1_pwm_stanga,m1_pwm_dreapta,dif1,dif2,marja_frana=50;
 float coeficient_viraj = 0.25; //coeficientul folosit pentru a creea diferenta dintre D si S in virajul combinat
-float m_fata=0.574;           //Nota:Coeficientul in schma v1 e 0.8, dar cu 0.8 nu functioneaza
-float n_fata= -749.52;
-float m_spate=-0.48;
-float n_spate=758.75;
-float m_dreapta = -0.48;
-float n_dreapta = 786.8;
-float m_stanga = 0.46;
-float n_stanga = -642.9;
+float m_fata=0.41;           //Nota:Coeficientul in schma v1 e 0.8, dar cu 0.8 nu functioneaza
+float n_fata= -503.7;
+float m_spate=-0.45;
+float n_spate=711.3;
+float m_dreapta = 0.42;
+float n_dreapta = -528.4;
+float m_stanga = 0.44;
+float n_stanga = 720;
 void setup() {
   pinMode(48, INPUT); //input canal 3
   pinMode(50, INPUT); //input canal 1
@@ -79,7 +79,7 @@ void citire_medie(){
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 void comandaST_FATA(){
 
-  if((m1 > 1600) && (m3 > 1470)){
+  if((m1 < 1400 && m1 > 1000) && (m3 > 1480)){
       medie_pwm_fata();
       medie_pwm_stanga();
       Serial.println("Comanda ST_FATA");
@@ -103,7 +103,7 @@ void comandaST_FATA(){
 
 void comandaST_SPATE(){
 
-  if((m1 > 1600) && (m3 < 1430 && m3>1000)){
+  if((m1 < 1400 && m1 > 1000) && (m3 < 1400 && m3>1000)){
     medie_pwm_spate();
     medie_pwm_stanga();
     Serial.println("Comanda ST_spate");
@@ -126,7 +126,7 @@ void comandaST_SPATE(){
 //Functia folosita pentru virare Dreapta+Fata "CAZ 2"
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 void comandaDR_FATA(){
-  if((m1 < 1450 && m1 > 1000) && (m3 > 1470)){
+  if((m1 > 1500) && (m3 > 1480)){
     medie_pwm_fata();
     medie_pwm_dreapta();
     Serial.println("Comanda DR_fata");
@@ -149,7 +149,7 @@ void comandaDR_FATA(){
 }
 
 void comandaDR_SPATE(){
-  if((m1 < 1450 && m1 > 1000)&&(m3 < 1430 && m3>1000)){
+  if((m1 > 1500)&&(m3 < 1400 && m3>1000)){
     Serial.println("Comanda DR_spate");
     medie_pwm_spate();
     medie_pwm_dreapta();
@@ -174,7 +174,7 @@ void comandaDR_SPATE(){
 //Functia folosita pentru virare Stanga-Dreapta "CAZ 1"
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 void comandaSTDR(){
-  if(m1 > 1600 && !(m3 > 1470 || m3 < 1430)){ //Stanga
+  if((m1 < 1400 && m1 > 1000) && !(m3 > 1480 || m3 < 1400)){ //Stanga
     medie_pwm_stanga();//functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Serial.println("Comanda Stanga simpla");
     digitalWrite(2, LOW);
@@ -187,7 +187,7 @@ void comandaSTDR(){
     digitalWrite(9, LOW);
 
   }
-  else if((m1 < 1450 && m1 > 1000) && !(m3 > 1470 || m3 < 1430) ){ //Dreapta
+  else if(m1 > 1500 && !(m3 > 1480 || m3 < 1400) ){ //Dreapta
     Serial.println("Comanda Dreapta simpla");
     medie_pwm_dreapta(); //functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     analogWrite(2, m1_pwm_dreapta);
@@ -205,7 +205,7 @@ void comandaSTDR(){
 
 //Functia folosita pentru miscarea-fata spate
 void comandaFATA_SPATE(){
-  if(m3 > 1490 && !(m1 > 1600 || m1 < 1465)){ //fata
+  if(m3 > 1480 && !(m1 > 1500 || m1 < 1400)){ //fata
     Serial.println("Comanda fata simpla");
     medie_pwm_fata(); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     analogWrite(2, m3_pwm_fata);
@@ -218,7 +218,7 @@ void comandaFATA_SPATE(){
     digitalWrite(9, LOW);
   }
 
-  else if((m3 < 1430 && m3>1000)&&!(m1 > 1600 || m1 < 1465)) { //Miscare spate
+  else if((m3 < 1400 && m3>1000)&&!(m1 > 1500 || m1 < 1400)) { //Miscare spate
     medie_pwm_spate(); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Serial.println("Comanda spate simpla");
     digitalWrite(2, LOW);
@@ -261,7 +261,7 @@ void afisare(){
 void principal(){
  if(ok!=true) citire_medie();
   else{
-    if(m1 > 1600 || m1 < 1465 || m3 > 1470 || m3 < 1430){ //verifica daca e joystickul centrat
+    if(m1 > 1500 || m1 < 1400 || m3 > 1480 || m3 < 1400){ //verifica daca e joystickul centrat
       comandaST_FATA(); //cazul 2 de virare, pentru stanga+fata
       comandaST_SPATE(); //cazul 2 de virare, pentru stanga+spate
       comandaDR_FATA(); //cazul 2 de virare, pentru dreapta+fata
