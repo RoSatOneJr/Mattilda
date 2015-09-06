@@ -1,6 +1,7 @@
 //Cod de miscare versiunea 3.
 //Feautures: Autocalibrare
 //          Folosirea unui singur pin PWM/motor
+
 int m1,m3, ok, ch3, c, ch1,marja_frana=50,i=0, m1_centru;
 int m3_centru,dif1,dif2, m3_fata_max, m3_spate_max, m1_stanga_max;
 int m1_dreapta_max, i, m3_fata_min, m3_spate_min, m1_stanga_min, m3_dreapta_min;
@@ -33,13 +34,13 @@ void medie_pwm_fata(){
 }
 void medie_pwm_spate(){
   m3_pwm_spate=m_spate * m3 + n_spate;
-  if(m3_pwm_spate>255) m3_pwm_fata=255;
+  if (m3_pwm_spate>255) m3_pwm_fata=255;
 
 
 }
 void medie_pwm_dreapta(){
    m1_pwm_dreapta=m_dreapta * m1 + n_dreapta;
-   if(m1_pwm_dreapta>255) m1_pwm_dreapta=255; Serial.println(m1_pwm_dreapta);
+   if (m1_pwm_dreapta>255) m1_pwm_dreapta=255; Serial.println(m1_pwm_dreapta);
 
 
 }
@@ -80,17 +81,17 @@ void comandaST_FATA(){
       medie_pwm_stanga();
       Serial.println("Comanda ST_FATA");
 
-      analogWrite(2, m3_pwm_fata*coeficient_viraj);
-      digitalWrite(3, LOW);
+      analogWrite(motor1_a, m3_pwm_fata*coeficient_viraj);
+      digitalWrite(motor1_b, LOW);
 
-     analogWrite(4, m1_pwm_stanga);
-     digitalWrite(5, LOW);
+     analogWrite(motor2_a, m1_pwm_stanga);
+     digitalWrite(motor2_b, LOW);
 
-      analogWrite(6, m3_pwm_fata*coeficient_viraj);
-      digitalWrite(7, LOW);
+      analogWrite(motor3_a, m3_pwm_fata*coeficient_viraj);
+      digitalWrite(motor3_b, LOW);
 
-      analogWrite(8, m1_pwm_stanga);
-      digitalWrite(9, LOW);
+      analogWrite(motor4_a, m1_pwm_stanga);
+      digitalWrite(motor_b, LOW);
   }
 }
 
@@ -104,24 +105,35 @@ void comandaST_SPATE(){
     medie_pwm_stanga();
     Serial.println("Comanda ST_spate");
 
-    digitalWrite(2, LOW);
-    analogWrite(3, m3_pwm_spate*coeficient_viraj);
+    analogWrite(motor1_a, m3_pwm_spate*coeficient_viraj);
+    digitalWrite(motor1_b, HIGH);
 
-   digitalWrite(4, LOW);
-   analogWrite(5, m1_pwm_stanga);
+   analogWrite(motor2_a, m1_pwm_stanga);
+   digitalWrite(motor2_b, HIGH);
 
-    digitalWrite(6, LOW);
-    analogWrite(7, m3_pwm_spate*coeficient_viraj);
+    analogWrite(motor3_a, m3_pwm_spate*coeficient_viraj);
+    digitalWrite(motor3_b, HIGH);
 
-    digitalWrite(8, LOW);
-    analogWrite(9, m1_pwm_stanga);
+    analogWrite(motor4_a, m1_pwm_stanga);
+    digitalWrite(motor4_b, HIGH);
   }
 }
 
 
 //Functia folosita pentru virare Dreapta+Fata "CAZ 2"
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
-void comandaDR_FATA(){
+
+
+
+
+
+
+
+
+
+
+
+void comandaDR_FATA(){  //AICI AM RAMAS !
   if((m1 > 1500) && (m3 > 1480)){
     medie_pwm_fata();
     medie_pwm_dreapta();
@@ -179,13 +191,13 @@ void Fata_simplu(){
 
 void Spate_simplu(){
       analogWrite(motor1_a, m3_pwm_spate);
-      digitalWrite(motor1_b, LOW);
+      digitalWrite(motor1_b, HIGH);
       analogWrite(motor2_a, m3_pwm_spate);
-      digitalWrite(motor2_b, LOW);
+      digitalWrite(motor2_b, HIGH);
       analogWrite(motor3_a, m3_pwm_spate);
-      digitalWrite(motor3_b, LOW);
+      digitalWrite(motor3_b, HIGH);
       analogWrite(motor4_a, m3_pwm_spate);
-      digitalWrite(motor4_b, LOW);
+      digitalWrite(motor4_b, HIGH);
 }
 
 void Stanga_simplu(){
@@ -201,12 +213,12 @@ void Stanga_simplu(){
 
 void Dreapta_simpla(){
     analogWrite(motor1_a, m1_pwm_dreapta);
-    digitalWrite(motor1_b, LOW);
-    digitalWrite(motor2_a, LOW);
+    digitalWrite(motor1_b, HIGH);
+    digitalWrite(motor2_a, HIGH);
     analogWrite(motor2_b, m1_pwm_dreapta);
     analogWrite(motor3_a, m1_pwm_dreapta);
-    digitalWrite(motor3_b, LOW);
-    digitalWrite(motor4_a, LOW);
+    digitalWrite(motor3_b, HIGH);
+    digitalWrite(motor4_a, HIGH);
     analogWrite(motor4_b, m1_pwm_dreapta);
 
 }
@@ -285,6 +297,15 @@ void prelucrare_date(){
       else{m1_stanga_min=m1_centru-50;m1_dreapta_min=m1_centru+50;}
       //a = min
       //b = max
+
+    int m1_dreapta_max_c = m1_dreapta_max; //copie a m1_dreapta_max
+    m1_dreapta_max = m1_dreapta_min; //astea 3 linii au fost adaugate pentru ca pe dreapta voi folosi PWM ca ground
+    m1_dreapta_min = m1_dreapta_max_c;  //si trebuia inversata functia
+
+    int m3_spate_max_c = m3_spate_max; //Citeste comentariile de mai sus
+    m3_spate_max = m3_spate_min; //Aceeasi chestie si aici ^
+    m3_spate_min = m3_spate_max_c;
+
     m_fata = 155 / (m3_fata_max - m3_fata_min);
     n_fata = 100 - (155 / (m3_fata_max - m3_fata_min))*a;
     m_spate = 255 / (m3_spate_max - m3_spate_min);
