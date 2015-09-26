@@ -3,16 +3,13 @@
 //          Folosirea unui singur pin PWM/motor
 
 int m1,m3, ok, ch3, c, ch1,marja_frana=50,i=0, m1_centru;
-int m3_centru,dif1,dif2, m3_fata_max, m3_spate_max, m1_stanga_max;
-int m1_dreapta_max, m3_fata_min, m3_spate_min, m1_stanga_min, m1_dreapta_min;
+float m3_centru,dif1,dif2, m3_fata_max, m3_spate_max, m1_dreapta_max, m1_stanga_max;
 int motor1_a=2, motor1_b=30, motor2_a=3, motor2_b=31, motor3_a=4, motor3_b=32;
 int motor4_a=5, motor4_b=33;
 int m1_dreapta_max_m, m1_dreapta_min_m, m3_spate_min_m, m3_spate_max_m; //NOTA: inturile cu _m sunt folosite pentru a stoca marja pentru miscarile cu PWM pe ground
-int stanga_mm = false, dreapta_mm = false, fata_mm = false, spate_mm = false;
 int m3_pwm_fata, m3_pwm_spate, m1_pwm_stanga, m1_pwm_dreapta;
-int coeficient_viraj = 0.25, stanga, dreapta,fata, spate;
-unsigned long current_millis, start_millis;
-float m_fata,n_fata,m_spate,n_spate,m_dreapta,n_dreapta,m_stanga,n_stanga;
+int coeficient_viraj = 0.25, stanga, dreapta, fata, spate;
+double m_fata,m_spate,m_dreapta,m_stanga;
 char inchar;
 int caz = 0;
 
@@ -32,34 +29,39 @@ void setup() {
   Serial.begin(19200); //baud-rate
 
 }
-
-int schimbare(int x, int maxim, int minim, int directie){
+//NOTA: directie trebuie sa fie 1 pentru fata-spate si 2 pentru stanga-dreapta
+int schimbare(int x, int directie){
+  int maxim, minim;
+  switch (directie){
+    case 1: { maxim = m3_fata_max; minim = m3_spate_max; } break;
+    case 2: { maxim = m1_dreapta_max; minim = m1_stanga_max; } break;
+  }
   if(caz & 1 << (directie -1))
     return maxim + minim - x;
    else return x;
 }
 
-void medie_pwm_stanga(){
-   m1_pwm_stanga=m_stanga * m1 + n_stanga;
+void medie_pwm_stanga(int x){
+   m1_pwm_stanga = 100 + ( x - (m1_centru - 50) ) * m_stanga;
    if(m1_pwm_stanga>255) m1_pwm_stanga=255; Serial.println(m1_pwm_stanga);
 
 }
 
-void medie_pwm_dreapta(){
-   m1_pwm_dreapta=m_dreapta * m1 + n_dreapta;
+void medie_pwm_dreapta(int x){
+   m1_pwm_dreapta = 155 - x * m_dreapta;
    if (m1_pwm_dreapta>255) m1_pwm_dreapta=255; Serial.println(m1_pwm_dreapta);
 
 }
 
-void medie_pwm_fata(){
-  m3_pwm_fata = m_fata * m3 + n_fata;
+void medie_pwm_fata(int x){
+  m3_pwm_fata = 100 + ( x - (m3_centru + 50) ) * m_fata;
   if(m3_pwm_fata>255) m3_pwm_fata=255; Serial.println(m3_pwm_fata);
 
 }
 
-void medie_pwm_spate(){
-  m3_pwm_spate = m_spate * m3 + n_spate;
-  if (m3_pwm_spate > 255) m3_pwm_fata=255;
+void medie_pwm_spate(int x){
+  m3_pwm_spate = 100 + ( x - (m3_centru - 50) ) * m_spate;
+  if (m3_pwm_spate > 255) m3_pwm_fata=255;Serial.println(m3_pwm_spate);
 
 }
 
@@ -72,12 +74,12 @@ void citire_medie(){
      m3 = (m3 + ch3) / 2;
      ch1 = pulseIn(50,HIGH,15000);
      m1 = (m1 + ch1) / 2;
-     if(c==1) dif1=ch3;
-     if(c==10) dif2=ch3;
-     if((dif2-dif1) > marja_frana ) frana();
+     if( c==1 ) dif1=ch3;
+     if( c==10 ) dif2=ch3;
+     if( (dif2-dif1) > marja_frana ) frana();
    }
-   ok=true;
-   c=0;
+   ok = true;
+   c = 0;
 }
 
 void Fata_simplu(){
@@ -136,9 +138,9 @@ void Dreapta_simplu(){
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 void comandaST_FATA(){
 
-  if(((m1 > m1_stanga_min && stanga_mm == true) || (m1 < m1_stanga_min && m1 > 10 && dreapta_mm == true)) && ((m3 > m3_fata_min && fata_mm == true) || (m3 < m3_fata_min && m3 > 10 && spate_mm == true)) && (stanga != 1 && fata !=1) ) {
-      medie_pwm_fata();
-      medie_pwm_stanga();
+  if( schimbare(m1, 2) < (m1_centru - 50) && schimbare(m3, 1) > (m3_centru + 50) ){
+      medie_pwm_fata( schimbare(m3, 1) );
+      medie_pwm_stanga( schimbare(m1, 2) );
       Serial.println("Comanda ST_FATA");
 
       analogWrite(motor1_a, m3_pwm_fata*coeficient_viraj);
@@ -152,8 +154,6 @@ void comandaST_FATA(){
 
       analogWrite(motor4_a, m1_pwm_stanga);
       digitalWrite(motor4_b, LOW);
-      fata = 1;
-      stanga = 1;
   }
 }
 
@@ -162,9 +162,9 @@ void comandaST_FATA(){
 
 void comandaST_SPATE(){
 
-  if(((m1 > m1_stanga_min && stanga_mm == true) || (m1 < m1_stanga_min && m1 > 10 && dreapta_mm == true)) && ((m3 > m3_spate_min && spate_mm == true) || (m3 < m3_spate_min && m3 > 10 && fata_mm == true)) && (stanga != 1 && spate != 1)) {
-    medie_pwm_spate();
-    medie_pwm_stanga();
+  if( schimbare(m1, 2) < (m1_centru - 50) && schimbare(m3, 1) < (m3_centru - 50) ){
+    medie_pwm_spate( schimbare(m3, 1) );
+    medie_pwm_stanga( schimbare(m1, 2) );
     Serial.println("Comanda ST_spate");
 
     analogWrite(motor1_a, m3_pwm_spate*coeficient_viraj);
@@ -178,8 +178,6 @@ void comandaST_SPATE(){
 
     analogWrite(motor4_a, m1_pwm_stanga);
     digitalWrite(motor4_b, HIGH);
-    stanga = 1;
-    spate = 1;
   }
 }
 
@@ -188,9 +186,9 @@ void comandaST_SPATE(){
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 
 void comandaDR_FATA(){
-  if(((m1 > m1_dreapta_min_m && dreapta_mm == true) || (m1 < m1_dreapta_min_m && m1 > 10 && dreapta_mm == true)) && ((m3 > m3_fata_min && fata_mm == true) || (m3 < m3_fata_min && m3 > 10 && spate_mm == true)) && (dreapta != 1 && stanga != 1) ) {
-    medie_pwm_fata();
-    medie_pwm_dreapta();
+  if( schimbare(m1, 2) > (m1_centru + 50) && schimbare(m3, 1) > (m3_centru + 50) ){
+    medie_pwm_fata( schimbare(m3, 1) );
+    medie_pwm_dreapta( schimbare(m1, 2) );
     Serial.println("Comanda DR_fata");
 
     analogWrite(motor1_a, m1_pwm_dreapta); //pwm_dreapta
@@ -204,17 +202,14 @@ void comandaDR_FATA(){
 
     analogWrite(motor4_a, m3_pwm_fata*coeficient_viraj); Serial.println(m3_pwm_fata*coeficient_viraj);
     digitalWrite(motor4_b, LOW);
-    dreapta = 1;
-    fata = 1;
-
   }
 }
 
 void comandaDR_SPATE(){
-    if(((m1 > m1_dreapta_min_m && dreapta_mm == true) || (m1 < m1_dreapta_min_m && m1 > 10 && stanga_mm == true)) && ((m3 > m3_spate_min_m && spate_mm == true) || (m3 < m3_spate_min_m && m3 > 10 && fata_mm == true)) && (dreapta != 1 && spate != 1) ) {
+    if( schimbare(m1, 2) > (m1_centru + 50) && schimbare(m3, 1) < (m3_centru - 50) ){
     Serial.println("Comanda DR_spate");
-    medie_pwm_spate();
-    medie_pwm_dreapta();
+    medie_pwm_spate( schimbare(m3, 1) );
+    medie_pwm_dreapta( schimbare(m1, 2) );
 
     analogWrite(motor1_a, m1_pwm_dreapta);
     digitalWrite(motor1_b, HIGH);
@@ -227,8 +222,6 @@ void comandaDR_SPATE(){
 
     analogWrite(motor4_a, m3_pwm_fata*coeficient_viraj);
     digitalWrite(motor4_b, HIGH);
-    dreapta = 1;
-    spate = 1;
 
   }
 
@@ -242,29 +235,30 @@ void comandaSTDR(){
   /*Serial.println("IF: ");Serial.print("1: ");Serial.println(m3 > m3_fata_min && m3 < m3_spate_min_m );*/
   /*Serial.println("m3 > m3_spate_min_m && m3 < m3_fata_min");Serial.println(m3);Serial.println(m3_spate_min_m);Serial.println(m3_fata_min);
   delay(1000);*/
-  if( (( m1 > m1_stanga_min && stanga_mm == true ) || (m1 < m1_stanga_min && m1 > 10 && dreapta_mm == true)) && !((m3 > m3_fata_min && m3 < m3_spate_min_m ) || (m3 > m3_spate_min_m && m3 < m3_fata_min)) && (stanga != 1) ){ //Stanga
-    medie_pwm_stanga();//functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
+  if( schimbare(m1, 2) < (m1_centru - 50) ){ //Stanga
+    medie_pwm_stanga( schimbare(m1, 2) );//functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Serial.println("Comanda Stanga simpla");
     Stanga_simplu();
   }
-  else if( (( m1 > m1_dreapta_min_m && dreapta_mm == true ) || (m1 < m1_dreapta_min_m && m1 > 10 && stanga_mm == true)) && !((m3 > m3_fata_min && m3 < m3_spate_min_m ) || (m3 > m3_spate_min_m && m3 < m3_fata_min)) && (dreapta != 1) ){ //Dreapta
+  else if( schimbare(m1, 2) > (m1_centru + 50) ){ //Dreapta
     Serial.println("Comanda Dreapta simpla");
-    medie_pwm_dreapta(); //functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
+    medie_pwm_dreapta( schimbare(m1, 2) ); //functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Dreapta_simplu();
   }
 }
 
 //Functia folosita pentru miscarea-fata spate
 void comandaFATA_SPATE(){
-  if( ((m3 > m3_fata_min && fata_mm == true) || (m3 < m3_fata_min && m3 > 10 && spate_mm == true)) && !((m1 > m1_stanga_min && m1 < m1_dreapta_min_m) || (m1 > m1_dreapta_min_m && m1 < m1_stanga_min)) && (fata != 1) ){ //fata
+  
+  if( schimbare(m3, 1) > (m3_centru + 50) ){ //fata
     Serial.println("Comanda fata simpla");
-    medie_pwm_fata(); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
+    medie_pwm_fata( schimbare(m3, 1) ); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Fata_simplu();
 
   }
 
-  else if( ((m3 > m3_spate_min_m && spate_mm == true) || (m3 < m3_spate_min_m && m3 > 10 && fata_mm == true)) && !((m1 > m1_stanga_min && m1 < m1_dreapta_min) || (m1 > m1_dreapta_min_m && m1 < m1_stanga_min)) && spate != 1 ){ // spate
-    medie_pwm_spate(); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
+  else if( schimbare(m3, 1) < (m3_centru - 50) ){ // spate
+    medie_pwm_spate( schimbare(m3, 1) ); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Serial.println("Comanda spate simpla");
     Spate_simplu();
   }
@@ -304,18 +298,14 @@ void afisare(){
 }
 
 void prelucrare_date(){
-  Serial.print("\n Incep prelucrarea datelor");
+  Serial.println("\n Incep prelucrarea datelor");
     if(m3_fata_max < m3_centru) caz = (caz | 1);
     if(m1_stanga_max > m1_centru) caz = (caz | 1 << 1);
     
-    m_fata = 155 / (m3_fata_max - m3_fata_min);
-    n_fata = 100 - (155 / (m3_fata_max - m3_fata_min))*m3_fata_min;
-    m_spate = 255 / (m3_spate_max - m3_spate_min);
-    n_spate = 0 - (155 / (m3_spate_max - m3_spate_min))*m3_spate_min;
-    m_stanga = 155/(m1_stanga_max - m1_stanga_min);
-    n_stanga = 100 - (155 / (m1_stanga_max - m1_stanga_min))*m1_stanga_min;
-    m_dreapta = 255 / (m1_dreapta_max - m1_dreapta_min);
-    n_dreapta = 0 - (155 / (m1_dreapta_max - m1_dreapta_min))*m1_dreapta_min;
+    m_fata = 155 / (m3_fata_max - (m3_centru + 50) ); Serial.print("m_fata: ");Serial.println((m3_fata_max - (m3_centru + 50) ));
+    m_spate = 155 / (m3_spate_max - (m3_centru - 50) ); Serial.print("m_spate: ");Serial.println((m3_fata_max - (m3_centru + 50) ));
+    m_stanga = 155 / (m1_stanga_max - (m1_centru - 50) ); Serial.print("m_stanga: ");Serial.println((m3_fata_max - (m3_centru + 50) ));
+    m_dreapta = 155 / (m1_dreapta_max - (m1_centru + 50) ); Serial.print("m_dreapta: ");Serial.println((m3_fata_max - (m3_centru + 50) ));
 }
 
 void comenzi(){
@@ -372,26 +362,19 @@ void comenzi(){
         if (inchar == 'v'){
         
           Serial.print("\n Centru FS: ");Serial.print( m3_centru );
-          if(caz & 1){
-            Serial.print("\n Fata maxim: ");Serial.print( m3_fata_max );
-            Serial.print("\n Fata min: ");Serial.print( schimbare( m3_centru + 50, m3_centru, m3_fata_max) ) ;
-            Serial.print("\n Spate maxim: ");Serial.print( m3_spate_max );
-            Serial.print("\n Spate min: ");Serial.print( schimbare( m3_centru - 50, m3_centru, m3_fata_max) );
-          }
-          else{
-            Serial.print("\n Fata maxim: ");Serial.print( m3_fata_max );
-            Serial.print("\n Fata min: ");Serial.print( m3_centru + 50 ) ;
-            Serial.print("\n Spate maxim: ");Serial.print( m3_spate_max );
-            Serial.print("\n Spate min: ");Serial.print( m3_centru - 50 );
-          }
           
-          if(caz & 2){
+            Serial.print("\n Fata maxim: ");Serial.print( schimbare( m3_fata_max, 1) );
+            Serial.print("\n Fata min: ");Serial.print( schimbare( m3_centru + 50, 1) ) ;
+            Serial.print("\n Spate maxim: ");Serial.print( schimbare(m3_spate_max, 1) );
+            Serial.print("\n Spate min: ");Serial.print( schimbare( m3_centru - 50, 1) );
+
+
             Serial.print("\n Centru SD: ");Serial.print( m1_centru );
-            Serial.print("\n Stanga maxim: ");Serial.print( m1_stanga_max );
-            Serial.print("\n Stanga min: ");Serial.print(schimbare( m1_centru - 50, m1_centru, m1_stanga_max));
-            Serial.print("\n Dreapta maxim: ");Serial.print( m1_dreapta_max);
-            Serial.print("\n Dreapta min: ");Serial.print(schimbare( m1_centru + 50, m1_centru, m3_dreapta_max)) );  
-          }        
+            
+            Serial.print("\n Stanga maxim: ");Serial.print( schimbare( m1_stanga_max, 2) );
+            Serial.print("\n Stanga min: ");Serial.print( schimbare( m1_centru - 50, 2) );
+            Serial.print("\n Dreapta maxim: ");Serial.print( schimbare( m1_dreapta_max, 2) );
+            Serial.print("\n Dreapta min: ");Serial.print( schimbare( m1_centru + 50, 2) );  
 
           delay(1000);
       }
@@ -399,25 +382,31 @@ void comenzi(){
   }
 
 bool centrat(){
-  if( (fata_mm == true && m3 < m3_fata_min && m3 > m3_spate_min_m ) && ( stanga_mm == true && m1 < m1_stanga_min && m1 > m1_dreapta_min_m ) ) {return false;}
-  if( (fata_mm == true && m3 < m3_fata_min && m3 > m3_spate_min_m ) && ( dreapta_mm == true && m1 < m1_dreapta_min_m && m1 > m1_stanga_min ) ) {return false;}
-  if( (spate_mm == true && m3 < m3_spate_min_m && m3 > m3_fata_min ) && ( stanga_mm == true && m1 < m1_stanga_min && m1 > m1_dreapta_min_m ) ) {return false;}
-  if( (spate_mm == true && m3 < m3_spate_min_m && m3 > m3_fata_min ) && ( dreapta_mm == true && m1 < m1_dreapta_min_m && m1 > m1_stanga_min ) ) {return false;}
-  return true;
+  
+  if( ( schimbare(m1, 2) > (m1_centru - 50) ) && ( schimbare(m1, 2) < (m1_centru + 50) ) && ( schimbare(m3, 1) > (m3_centru - 50) ) && ( schimbare(m3, 1) < (m3_centru + 50) ) ){
+    Serial.println("E centrat");
+    return true;
+  }
+    
+   else{Serial.println("Nu e centrat"); return false;}
 }
 
 void principal(){ //Pune functiile impreuna
   comenzi();
  if(ok!=true) citire_medie();
   else{
-    if( centrat() ){ //verifica daca e joystickul nu e centrat
+    if( !centrat() ){ //verifica daca e joystickul nu e centrat
       dreapta = 0; stanga = 0;
       fata = 0; spate = 0;
+      
       comandaST_FATA(); //cazul 2 de virare, pentru stanga+fata
       comandaST_SPATE(); //cazul 2 de virare, pentru stanga+spate
       comandaDR_FATA(); //cazul 2 de virare, pentru dreapta+fata
       comandaDR_SPATE(); //cazul 2 de virare, pentru dreapta+fata
-      comandaSTDR(); //cazul 1 de virare
+      
+      if( schimbare(m3, 1) > (m3_centru - 50) && schimbare(m3, 1) < (m3_centru + 50) )// daca joystick-ul nu e deplasat pe axa fata-spate
+        comandaSTDR(); //cazul 1 de virare
+      if( schimbare(m1, 2) > (m1_centru - 50) && schimbare(m1, 2) < (m1_centru + 50) )// daca joystick-ul nu e deplasat pe axa dreapta-stanga
       comandaFATA_SPATE(); //miscare de baza fata-spate
     }
      else {frana();}
@@ -431,5 +420,5 @@ void principal(){ //Pune functiile impreuna
 
 void loop(){
 
- comenzi();
+ principal();
 }
