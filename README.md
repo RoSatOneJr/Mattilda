@@ -1,2 +1,2 @@
 
-Linkuri: (daca o sa fie nevoie)
+Yay, roboti !

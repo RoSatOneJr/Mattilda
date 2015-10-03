@@ -249,7 +249,7 @@ void comandaSTDR(){
 
 //Functia folosita pentru miscarea-fata spate
 void comandaFATA_SPATE(){
-  
+
   if( schimbare(m3, 1) > (m3_centru + 50) ){ //fata
     Serial.println("Comanda fata simpla");
     medie_pwm_fata( schimbare(m3, 1) ); //Functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
@@ -301,7 +301,7 @@ void prelucrare_date(){
   Serial.println("\n Incep prelucrarea datelor");
     if(m3_fata_max < m3_centru) caz = (caz | 1);
     if(m1_stanga_max > m1_centru) caz = (caz | 1 << 1);
-    
+
     m_fata = 155 / (m3_fata_max - (m3_centru + 50) ); Serial.print("m_fata: ");Serial.println((m3_fata_max - (m3_centru + 50) ));
     m_spate = 155 / (m3_spate_max - (m3_centru - 50) ); Serial.print("m_spate: ");Serial.println((m3_fata_max - (m3_centru + 50) ));
     m_stanga = 155 / (m1_stanga_max - (m1_centru - 50) ); Serial.print("m_stanga: ");Serial.println((m3_fata_max - (m3_centru + 50) ));
@@ -360,9 +360,9 @@ void comenzi(){
            }
         }
         if (inchar == 'v'){
-        
+
           Serial.print("\n Centru FS: ");Serial.print( m3_centru );
-          
+
             Serial.print("\n Fata maxim: ");Serial.print( schimbare( m3_fata_max, 1) );
             Serial.print("\n Fata min: ");Serial.print( schimbare( m3_centru + 50, 1) ) ;
             Serial.print("\n Spate maxim: ");Serial.print( schimbare(m3_spate_max, 1) );
@@ -370,11 +370,11 @@ void comenzi(){
 
 
             Serial.print("\n Centru SD: ");Serial.print( m1_centru );
-            
+
             Serial.print("\n Stanga maxim: ");Serial.print( schimbare( m1_stanga_max, 2) );
             Serial.print("\n Stanga min: ");Serial.print( schimbare( m1_centru - 50, 2) );
             Serial.print("\n Dreapta maxim: ");Serial.print( schimbare( m1_dreapta_max, 2) );
-            Serial.print("\n Dreapta min: ");Serial.print( schimbare( m1_centru + 50, 2) );  
+            Serial.print("\n Dreapta min: ");Serial.print( schimbare( m1_centru + 50, 2) );
 
           delay(1000);
       }
@@ -382,12 +382,12 @@ void comenzi(){
   }
 
 bool centrat(){
-  
+
   if( ( schimbare(m1, 2) > (m1_centru - 50) ) && ( schimbare(m1, 2) < (m1_centru + 50) ) && ( schimbare(m3, 1) > (m3_centru - 50) ) && ( schimbare(m3, 1) < (m3_centru + 50) ) ){
     Serial.println("E centrat");
     return true;
   }
-    
+
    else{Serial.println("Nu e centrat"); return false;}
 }
 
@@ -398,12 +398,12 @@ void principal(){ //Pune functiile impreuna
     if( !centrat() ){ //verifica daca e joystickul nu e centrat
       dreapta = 0; stanga = 0;
       fata = 0; spate = 0;
-      
+
       comandaST_FATA(); //cazul 2 de virare, pentru stanga+fata
       comandaST_SPATE(); //cazul 2 de virare, pentru stanga+spate
       comandaDR_FATA(); //cazul 2 de virare, pentru dreapta+fata
       comandaDR_SPATE(); //cazul 2 de virare, pentru dreapta+fata
-      
+
       if( schimbare(m3, 1) > (m3_centru - 50) && schimbare(m3, 1) < (m3_centru + 50) )// daca joystick-ul nu e deplasat pe axa fata-spate
         comandaSTDR(); //cazul 1 de virare
       if( schimbare(m1, 2) > (m1_centru - 50) && schimbare(m1, 2) < (m1_centru + 50) )// daca joystick-ul nu e deplasat pe axa dreapta-stanga
