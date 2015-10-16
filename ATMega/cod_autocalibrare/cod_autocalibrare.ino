@@ -2,7 +2,7 @@
 //Feautures: Autocalibrare
 //          Folosirea unui singur pin PWM/motor
 
-int m1, m3, ok, ch3, c, ch1, marja_frana=50, i=0;
+int m1, m3, ch5, ok, ch3, c, ch1, marja_frana=50, i=0;
 float dif1, dif2, m3_fata_max, m3_spate_max, m1_dreapta_max, m1_stanga_max;
 int motor1_a=2, motor1_b=30, motor2_a=3, motor2_b=31, motor3_a=4, motor3_b=32;
 int motor4_a=5, motor4_b=33;
@@ -14,6 +14,7 @@ char inchar;
 int caz = 0;
 
 void setup() {
+  pinMode(46, INPUT); //input canal 5
   pinMode(48, INPUT); //input canal 3
   pinMode(50, INPUT); //input canal 1
   pinMode(motor1_a, OUTPUT); //output motor1_a
@@ -72,6 +73,7 @@ void medie_pwm_spate(int x){
 
 
 void citire_medie(){
+   ch5 = pulseIn(46,HIGH,15000);//citire canal 5 telecomanda
    m3 = pulseIn(48,HIGH,15000); //citire canal 3 telecomanda
    m1 = pulseIn(50, HIGH, 15000); //citire canal 1 telecomanda
    for(int c=1;c<=10;c++){
@@ -291,6 +293,9 @@ void afisare(){
 
   Serial.print("Channel1:");
   Serial.println(ch1);
+  
+  Serial.print("Channel5:");
+  Serial.println(ch5);
 
   Serial.println("###########################");
 }
@@ -409,7 +414,7 @@ void principal(){ //Pune functiile impreuna
       comandaFATA_SPATE(); //miscare de baza fata-spate
     }
      else {frana();}
-    //afisare();
+    afisare();
     delay(300);
     ok = false;
   }
