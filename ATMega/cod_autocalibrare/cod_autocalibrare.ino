@@ -307,13 +307,6 @@ void prelucrare_date(){
     m_dreapta = 155 / ( schimbare(m1_dreapta_max, 2) - (m1_centru + 50) );
 }
 
-
-
-
-
-
-
-
 void comenzi(){
   if (Serial.available() > 0) {
         inchar = Serial.read();
