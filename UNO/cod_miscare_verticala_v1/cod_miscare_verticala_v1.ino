@@ -2,124 +2,185 @@
 //To-Do: Functiile Input -> PWM [ ]
 //       Cam tot.
 //Neprioritar: Comunicatie intre Mega si UNO
-int ok, ch2, ch4, m2, m4;
-const int pinCanal2 = 12;
-const int pinCanal4 = 13;
-const int pinCanal5 = 14;
+const int pinCanal4 = 2;
+const int pinCanal5 = 3;
+const int pinCanal7 = 4;
+const int pinCanal8 = 5;
 const int pinReleu = 15;
-const int motorSJ1 = 16;
-const int motorSJ2 = 17;
-const int motorSD1 = 18;
-const int motorSD2 = 19;
-int vertical_max, vertical_centru;
-int vertical_min;
-int fata_max, fata_centru;
-int fata_min;
-int m2_pwm_sus, m2_pwm_jos;
+const int motorSD1_a = 16;
+const int motorSD2_a = 17;
+const int motorFS1_a = 18;
+const int motorFS2_a = 19;
+const int motorSD1_b = 10;
+const int motorSD2_b = 11;
+const int motorFS1_b = 12;
+const int motorFS2_b = 13;
+const int analogIn = A1;
+const int valMaxStr = 2000;//trebuie schimbata
+
+int ok, m4, ch4, ch5, ch7, ch8;
+int RawValue= 0;
+double Voltage = 0;
+int fata_max, fata_centru, fata_min;
+int strans_max, strans_min;
+int m4_pwm_Fata, m4_pwm_Spate, m7_pwm_Strangere, m7_pwm_Desfacere;
+int caz;
+char inchar;
 bool doarUnMotor = false;
+
+double m_fata, m_spate;
 
 void setup() {
 
-  pinMode(pinCanal2, INPUT); //input canal 2
   pinMode(pinCanal4, INPUT); //input canal 4
   pinMode(pinCanal5, INPUT); //input canal 5
-  pinMode(motorSJ1, OUTPUT); //output motorSJ1
-  pinMode(motorSJ2, OUTPUT); //output motor SJ2
+  pinMode(pinCanal7, INPUT); //input canal 7
+  pinMode(pinCanal8, INPUT); //input canal 8
+  
+  pinMode(motorFS1_a, OUTPUT); //output motorSus Jos 1_a
+  pinMode(motorFS1_b, OUTPUT); //output motor Sus Jos 1_b
+  pinMode(motorFS2_a, OUTPUT); //output motor Sus Jos 2_a
+  pinMode(motorFS2_b, OUTPUT); //output motor Sus Jos 2_b
+  
+  pinMode(motorSD1_a, OUTPUT); //output motor Fata Spate 1_a
+  pinMode(motorSD1_b, OUTPUT); //output motor Fata Spate 1_b
+  pinMode(motorSD2_a, OUTPUT); //output motor Fata Spate 2_a
+  pinMode(motorSD2_b, OUTPUT); //output motor Fata Spate 2_b
   ok = false; //bool medie
   Serial.begin(19200); //baud-rate
 
 }
 
-void pwmSus(){
-//Matematica care ne bate aici
+//NOTA: directie trebuie sa fie 1 pentru fata-spate si 2 pentru sttrangere-desfacere
+int schimbare(int x, int directie){
+  int maxim, minim;
 
+  switch (directie){
+    case 1: { maxim = fata_max; minim = fata_min; break;}
+    case 2: { maxim = strans_max; minim = strans_min; break;}
+  }
+  if(caz & (1 << (directie - 1) )){
+
+    return maxim + minim - x;
+  }
+
+   else return x;
 }
 
-void pwmJos(){
-//Matematica care ne bate aici
-
-}
 
 void pwmStrangere(){
-//Matematica care ne bate aici
-
+  m7_pwm_Strangere = 255;
 }
 
 void pwmDesfacere(){
-//Matematica care ne bate aici
-
+  m7_pwm_Desfacere = 0;
 }
 
-void pwmFata(){
-//Matematica care ne bate aici
-
+void pwmFata(int x){
+  m4_pwm_Fata = (x - schimbare(fata_centru + 50, 1)) * m_fata + 100;
 }
 
-void pwmSpate(){
-//Matematica care ne bate aici
-
-}
-void citire_medie() {
-   m2 = pulseIn(pinCanal2, HIGH,15000); //citire canal 2 telecomanda
-   m4 = pulseIn(pinCanal4, HIGH, 15000); //citire canal 4 telecomanda
-   ch5 = pulseIn(pinCanal5, HIGH, 15000);//citire canal 5 telecomanda
-   for (int c=1;c<=10;c++) {
-     ch3 = pulseIn(pinCanal2,HIGH,15000);
-     m3 = (m4 + ch4) / 2;
-     ch2 = pulseIn(pinCanal4,HIGH,15000);
-     m2 = (m2 + ch2) / 2;
-   }
-
-   ok = true;
-   c = 0;
+void pwmSpate(int x){
+  m4_pwm_Spate = (x - schimbare(fata_min, 1) ) * m_spate;
 }
 
 
-
-void miscareSus() {
-  analogWrite(motorSJ1, m2_pwm_sus);
-  if(!doarUnMotor)
-    analogWrite(motorSJ2, m2_pwm_sus);
+void miscareFata() {
+  pwmFata(m4);
+  analogWrite(motorFS1_a, m4_pwm_Fata);
+  analogWrite(motorFS1_b, LOW);
+  
+  if(!doarUnMotor){
+    analogWrite(motorFS2_a, m4_pwm_Fata);
+    analogWrite(motorFS2_b, LOW); 
+  }
 }
 
-void miscareJos() {
-  analogWrite(motorSJ1, m2_pwm_jos);
-  if(!doarUnMotor)
-    analogWrite(motorSJ2, m2_pwm_jos);
+void miscareSpate() {
+  pwmSpate(m4);
+  analogWrite(motorFS1_a, m4_pwm_Spate);
+  analogWrite(motorFS1_b, HIGH);
+  
+  if(!doarUnMotor){
+    analogWrite(motorFS2_a, m4_pwm_Spate);
+    analogWrite(motorFS2_b, HIGH);
+  }
 }
 
 void miscareStrangere() {
-  //comenzile pentru motoare aici
-
+  pwmStrangere();
+  analogWrite(motorSD1_a, 255);
+  analogWrite(motorSD1_b, LOW);
+  
+  if(!doarUnMotor){
+    analogWrite(motorSD2_a, 255);
+    analogWrite(motorSD2_b, LOW);
+  }
 }
 
 void miscareDesfacere(){
-  //comenzile pentru motoare aici
-
+  pwmDesfacere();
+  analogWrite(motorSD1_a, 0);
+  analogWrite(motorSD1_b, HIGH);
+  
+  if(!doarUnMotor){
+    analogWrite(motorSD2_a, 0);
+    analogWrite(motorSD2_b, HIGH);
+  }
 }
 
-void comandaSus(){
-  //if(conditie){
-  miscareSus();
- //}
+void brateInScurt() {
+  analogWrite(motorSD1_a, HIGH);
+  analogWrite(motorSD1_b, HIGH);
+  analogWrite(motorSD2_a, HIGH);
+  analogWrite(motorSD2_b, HIGH);
+}
+void caruciorInScurt() {
+  analogWrite(motorFS1_a, HIGH);
+  analogWrite(motorFS1_b, HIGH);
+  analogWrite(motorFS2_a, HIGH);
+  analogWrite(motorFS2_b, HIGH);
 }
 
-void comandaJos(){
-  //if(conditie){
-  miscareJos();
- //}
+
+
+int val_senz_curent(){
+  
+   RawValue = analogRead(analogIn);
+   Voltage = (RawValue / 1023.0) * 5000; // Gets you mV
+   
+   if(Voltage < valMaxStr)
+     return 1;
+   else return 0;
 }
 
 void comandaStrangere(){
-  //if(conditie){
-  miscareStrangere();
- //}
+  
+  if(val_senz_curent() == 1 && schimbare(ch7, 2) > 1500){
+      miscareStrangere();
+ }
+ else brateInScurt();
 }
 
 void comandaDesfacere(){
-  //if(conditie){
-  miscareDesfacere();
- //}
+  
+  if(val_senz_curent() == 1 && schimbare(ch7, 2) > 1500){
+      miscareDesfacere();
+ }
+ else brateInScurt();
+}
+
+void comandaFata(){
+  if(schimbare(m4, 1) > (fata_centru + 50) ){
+    miscareFata();
+  }
+}
+
+void comandaSpate(){
+  if(schimbare(m4, 1) < (fata_centru - 50) ){
+    miscareSpate();
+  }
+  
 }
 
 void oprireReleu(){
@@ -127,8 +188,102 @@ void oprireReleu(){
 
 }
 
+void prelucrare_date(){
+  Serial.println("\n Incep prelucrarea datelor");
+    if(fata_max < fata_centru) caz = (caz | 1);
+    if(strans_max > strans_min) caz = (caz | 1 << 1);
+
+
+    m_fata = 155 / (  schimbare(fata_max, 1) - schimbare(fata_centru + 50, 1) );
+    m_spate = 155 / ( schimbare(fata_centru - 50, 1) - schimbare(fata_min, 1) );
+}
+
+void citire_medie() {
+    m4 = pulseIn(pinCanal4, HIGH, 15000);//citire canal 4 telecomanda
+   ch5 = pulseIn(pinCanal5, HIGH, 15000);//citire canal 5 telecomanda
+   ch7 = pulseIn(pinCanal7, HIGH, 15000);//citire canal 7 telecomanda
+   ch8 = pulseIn(pinCanal8, HIGH, 15000);//citire canal 8 telecomanda
+   for (int c=1;c<=10;c++) {
+     ch4 = pulseIn(pinCanal4,HIGH,15000);
+     m4 = (m4 + ch4) / 2;
+   }
+
+   ok = true;
+}
+
+ void comenzi(){
+  if (Serial.available() > 0) {
+        inchar = Serial.read();
+          if (inchar == 'e'){
+
+              for(int i = 0; i <= 5; i++){
+
+                if(i == 1){
+                  Serial.println("Incep calibrarea.");
+                  Serial.println("\n Tine joystick-ul centrat ");
+                  delay(1000);
+                  citire_medie();
+                  fata_centru = m4;
+                  Serial.print("\n Valoarile luate: CH4:"); Serial.print(fata_centru);
+              }
+               if(i == 2){
+                 Serial.println("\n #######################################");
+                 Serial.println("\n Tine joystick-ul in fata ");
+                 delay(1000);
+                 citire_medie();
+                 fata_max = m4;
+                 Serial.print("\n Valoare luata: "); Serial.print(fata_max);
+               }
+              if(i == 3){
+                Serial.println("\n #######################################");
+                Serial.println("\n Tine joystick-ul in spate ");
+                delay(1000);
+                citire_medie();
+                fata_min = m4;
+
+                 Serial.print("\n Valoare luata: "); Serial.print(fata_min);
+              }
+              if(i == 4){
+                Serial.println("\n #######################################");
+                Serial.println("\n Tine switch-ul din dreapta in sus ");
+                delay(1000);
+                citire_medie();
+                strans_max = ch7;
+                Serial.print("\n Valoare luata: "); Serial.print(strans_max);
+              }
+               if(i == 5){
+                Serial.println("\n #######################################");
+                Serial.println("\n Tine switch-ul din dreapta in jos ");
+                delay(1000);
+                citire_medie();
+                strans_min = ch7;
+                Serial.print("\n Valoare luata: "); Serial.print(strans_min); prelucrare_date();
+              }
+
+           }
+        }
+        if (inchar == 'g'){
+
+          Serial.print("\n Centru FS: ");Serial.print( fata_centru );
+
+            Serial.print("\n Fata maxim: ");Serial.print( schimbare( fata_max, 1) );
+            Serial.print("\n Fata min: ");Serial.print( schimbare(fata_centru + 50, 1) ) ;
+            Serial.print("\n Spate maxim: ");Serial.print( schimbare(fata_min, 1) );
+            Serial.print("\n Spate min: ");Serial.print( schimbare(fata_centru - 50, 1) );
+
+            Serial.print("\n Strans maxim: ");Serial.print( schimbare( strans_max, 2) );
+            Serial.print("\n Strans min: ");Serial.print( schimbare( strans_min, 2) );
+
+            Serial.print("\n Caz");Serial.print( caz );
+
+          delay(1000);
+      }
+    }
+  }
+
+
 bool centrat(){
-  if (m2 > vertical_centru_max || m2 < vertical_centru_min || m4 > fata_centru_max || m4 < fata_centru_min ) {
+  if ( m4 > schimbare(fata_centru + 50, 1) || m4 < schimbare(fata_centru - 50, 1) ||  schimbare(ch7, 2) > 1500 ) {
       Serial.println("Nu e centrat");
       return false;
      }
@@ -141,21 +296,26 @@ bool centrat(){
 
 void principal() {
   citire_medie();
+  comenzi();
   if(ch5 > 1500)
     doarUnMotor = true;
   else doarUnMotor = false;
 
   if ( !centrat() ) {
-    comandaSus();
-    comandaJos();
-    comandaStrangere();
-    comandaDesfacere();
+    comandaFata();
+    comandaSpate();
+    
+    if(ch8 > 1500)
+      comandaStrangere();
+    else if(ch8 < 1500)
+      comandaDesfacere();
+      
     //conditii miscari
 
   }
- else(){
+ else{
    oprireReleu();
-
+   caruciorInScurt();
  }
 }
 
