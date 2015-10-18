@@ -36,12 +36,12 @@ void setup() {
   pinMode(pinCanal5, INPUT); //input canal 5
   pinMode(pinCanal7, INPUT); //input canal 7
   pinMode(pinCanal8, INPUT); //input canal 8
-  
+
   pinMode(motorFS1_a, OUTPUT); //output motorSus Jos 1_a
   pinMode(motorFS1_b, OUTPUT); //output motor Sus Jos 1_b
   pinMode(motorFS2_a, OUTPUT); //output motor Sus Jos 2_a
   pinMode(motorFS2_b, OUTPUT); //output motor Sus Jos 2_b
-  
+
   pinMode(motorSD1_a, OUTPUT); //output motor Fata Spate 1_a
   pinMode(motorSD1_b, OUTPUT); //output motor Fata Spate 1_b
   pinMode(motorSD2_a, OUTPUT); //output motor Fata Spate 2_a
@@ -68,14 +68,6 @@ int schimbare(int x, int directie){
 }
 
 
-void pwmStrangere(){
-  m7_pwm_Strangere = 255;
-}
-
-void pwmDesfacere(){
-  m7_pwm_Desfacere = 0;
-}
-
 void pwmFata(int x){
   m4_pwm_Fata = (x - schimbare(fata_centru + 50, 1)) * m_fata + 100;
 }
@@ -88,74 +80,74 @@ void pwmSpate(int x){
 void miscareFata() {
   pwmFata(m4);
   analogWrite(motorFS1_a, m4_pwm_Fata);
-  analogWrite(motorFS1_b, LOW);
-  
+  digitalWrite(motorFS1_b, LOW);
+
   if(!doarUnMotor){
     analogWrite(motorFS2_a, m4_pwm_Fata);
-    analogWrite(motorFS2_b, LOW); 
+    digitalWrite(motorFS2_b, LOW);
   }
 }
 
 void miscareSpate() {
   pwmSpate(m4);
   analogWrite(motorFS1_a, m4_pwm_Spate);
-  analogWrite(motorFS1_b, HIGH);
-  
+  digitalWrite(motorFS1_b, HIGH);
+
   if(!doarUnMotor){
     analogWrite(motorFS2_a, m4_pwm_Spate);
-    analogWrite(motorFS2_b, HIGH);
+    digitalWrite(motorFS2_b, HIGH);
   }
 }
 
 void miscareStrangere() {
   pwmStrangere();
   analogWrite(motorSD1_a, 255);
-  analogWrite(motorSD1_b, LOW);
-  
+  digitalWrite(motorSD1_b, LOW);
+
   if(!doarUnMotor){
     analogWrite(motorSD2_a, 255);
-    analogWrite(motorSD2_b, LOW);
+    digitalWrite(motorSD2_b, LOW);
   }
 }
 
 void miscareDesfacere(){
   pwmDesfacere();
   analogWrite(motorSD1_a, 0);
-  analogWrite(motorSD1_b, HIGH);
-  
+  digitalWrite(motorSD1_b, HIGH);
+
   if(!doarUnMotor){
     analogWrite(motorSD2_a, 0);
-    analogWrite(motorSD2_b, HIGH);
+    digitalWrite(motorSD2_b, HIGH);
   }
 }
 
 void brateInScurt() {
-  analogWrite(motorSD1_a, HIGH);
-  analogWrite(motorSD1_b, HIGH);
-  analogWrite(motorSD2_a, HIGH);
-  analogWrite(motorSD2_b, HIGH);
+  digitalWrite(motorSD1_a, HIGH);
+  digitalWrite(motorSD1_b, HIGH);
+  digitalWrite(motorSD2_a, HIGH);
+  digitalWrite(motorSD2_b, HIGH);
 }
 void caruciorInScurt() {
-  analogWrite(motorFS1_a, HIGH);
-  analogWrite(motorFS1_b, HIGH);
-  analogWrite(motorFS2_a, HIGH);
-  analogWrite(motorFS2_b, HIGH);
+  digitalWrite(motorFS1_a, HIGH);
+  digitalWrite(motorFS1_b, HIGH);
+  digitalWrite(motorFS2_a, HIGH);
+  digitalWrite(motorFS2_b, HIGH);
 }
 
 
 
 int val_senz_curent(){
-  
+
    RawValue = analogRead(analogIn);
    Voltage = (RawValue / 1023.0) * 5000; // Gets you mV
-   
+
    if(Voltage < valMaxStr)
      return 1;
    else return 0;
 }
 
 void comandaStrangere(){
-  
+
   if(val_senz_curent() == 1 && schimbare(ch7, 2) > 1500){
       miscareStrangere();
  }
@@ -163,7 +155,7 @@ void comandaStrangere(){
 }
 
 void comandaDesfacere(){
-  
+
   if(val_senz_curent() == 1 && schimbare(ch7, 2) > 1500){
       miscareDesfacere();
  }
@@ -180,11 +172,11 @@ void comandaSpate(){
   if(schimbare(m4, 1) < (fata_centru - 50) ){
     miscareSpate();
   }
-  
+
 }
 
 void oprireReleu(){
-  digitalWrite(pinReleu, LOW);
+  digitalWrite(pinReleu, HIGH);
 
 }
 
@@ -304,12 +296,12 @@ void principal() {
   if ( !centrat() ) {
     comandaFata();
     comandaSpate();
-    
+
     if(ch8 > 1500)
       comandaStrangere();
     else if(ch8 < 1500)
       comandaDesfacere();
-      
+
     //conditii miscari
 
   }
