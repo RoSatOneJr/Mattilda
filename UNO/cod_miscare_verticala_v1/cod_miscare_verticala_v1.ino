@@ -100,7 +100,6 @@ void miscareSpate() {
 }
 
 void miscareStrangere() {
-  pwmStrangere();
   analogWrite(motorSD1_a, 255);
   digitalWrite(motorSD1_b, LOW);
 
@@ -111,7 +110,6 @@ void miscareStrangere() {
 }
 
 void miscareDesfacere(){
-  pwmDesfacere();
   analogWrite(motorSD1_a, 0);
   digitalWrite(motorSD1_b, HIGH);
 
