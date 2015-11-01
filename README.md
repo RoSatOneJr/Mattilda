@@ -1,4 +1,1 @@
-
-Yay, roboti !
-
-http://www.instructables.com/id/Controlling-AC-light-using-Arduino-with-relay-modu/
+Pentru ESP: http://electronut.in/an-iot-project-with-esp8266/
