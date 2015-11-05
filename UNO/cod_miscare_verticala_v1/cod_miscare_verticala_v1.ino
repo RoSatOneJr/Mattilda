@@ -1,7 +1,3 @@
-//Cod pentru controlul caruciorului mobil / "miscare verticala"
-//To-Do: Functiile Input -> PWM [ ]
-//       Cam tot.
-//Neprioritar: Comunicatie intre Mega si UNO
 const int pinCanal4 = 2;
 const int pinCanal5 = 3;
 const int pinCanal7 = 4;
