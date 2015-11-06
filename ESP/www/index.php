@@ -6,7 +6,7 @@
 <style>
 
 body {
-    background-color: #fdf6e3;
+    background-color: #FFF2E5;
 }
 
 iframe{
