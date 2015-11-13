@@ -200,7 +200,7 @@ void citire_medie() {
  void comenzi(){
   if (Serial.available() > 0) {
         inchar = Serial.read();
-          if (inchar == 'e'){
+          if (inchar == 'c'){
 
               for(int i = 0; i <= 5; i++){
 
@@ -248,7 +248,7 @@ void citire_medie() {
 
            }
         }
-        if (inchar == 'g'){
+        if (inchar == 'v'){
 
           Serial.print("\n Centru FS: ");Serial.print( fata_centru );
 
@@ -291,16 +291,14 @@ void principal() {
     comandaFata();
     comandaSpate();
 
-    if(ch8 > 1500)
+    if(ch8 > 1550)
       comandaStrangere();
-    else if(ch8 < 1500)
+    else if(ch8 < 1450)
       comandaDesfacere();
-
-    //conditii miscari
 
   }
  else{
-   oprireReleu();
+   //oprireReleu(); //Cica releul nu va mai fi folosit. \_(o_O)_/
    caruciorInScurt();
  }
 }

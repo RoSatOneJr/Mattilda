@@ -293,7 +293,7 @@ void afisare(){
 
   Serial.print("Channel1:");
   Serial.println(ch1);
-  
+
   Serial.print("Channel5:");
   Serial.println(ch5);
 
@@ -415,7 +415,7 @@ void principal(){ //Pune functiile impreuna
     }
      else {frana();}
     afisare();
-    delay(300);
+//    delay(300);
     ok = false;
   }
 }
