@@ -2,19 +2,17 @@
 //Feautures: Autocalibrare
 //          Folosirea unui singur pin PWM/motor
 
-int m1, m3, ch5, ok, ch3, c, ch1, marja_frana=50, i=0;
-float dif1, dif2, m3_fata_max, m3_spate_max, m1_dreapta_max, m1_stanga_max;
-int motor1_a=2, motor1_b=30, motor2_a=3, motor2_b=31, motor3_a=4, motor3_b=32;
-int motor4_a=5, motor4_b=33;
-int m1_dreapta_max_m, m1_dreapta_min_m, m3_spate_min_m, m3_spate_max_m; //NOTA: inturile cu _m sunt folosite pentru a stoca marja pentru miscarile cu PWM pe ground
+int m1, m3, m2, ch1, ch3, ch2, ok, c, marja_frana=50, i=0;
+float dif1, dif2, m3_fata_max, m3_spate_max, m1_dreapta_max, m1_stanga_max, m2_sus_max, m2_jos_max;
+int motor1_a=2, motor1_b=30, motor2_a=3, motor2_b=31, motor3_a=4, motor3_b=32, motor4_a=5, motor4_b=33, motorSJ = ;
 int m3_pwm_fata, m3_pwm_spate, m1_pwm_stanga, m1_pwm_dreapta;
 int coeficient_viraj = 0.25;
-double m3_centru = 1450, m_fata = 1870, m_spate = 1050, m1_centru = 1505, m_dreapta = 1920, m_stanga = 1090;
+double m3_centru = 1450, m_fata = 1870, m_spate = 1050, m1_centru = 1505, m_dreapta = 1920, m_stanga = 1090, m2_centru, m2_sus, m2_jos;
 char inchar;
 int caz = 0;
 
 void setup() {
-  pinMode(46, INPUT); //input canal 5
+  pinMode(46, INPUT); //input canal 2
   pinMode(48, INPUT); //input canal 3
   pinMode(50, INPUT); //input canal 1
   pinMode(motor1_a, OUTPUT); //output motor1_a
@@ -25,18 +23,20 @@ void setup() {
   pinMode(motor3_b, OUTPUT); //output motor 3_b
   pinMode(motor4_a, OUTPUT); //output motor 4_a
   pinMode(motor4_b, OUTPUT); //output motor 4_b
+  pinMode(motorSJ, OUTPUT); // output motor Sus Jos
 
   ok = false; //bool medie
   Serial.begin(19200); //baud-rate
 
 }
-//NOTA: directie trebuie sa fie 1 pentru fata-spate si 2 pentru stanga-dreapta
+//NOTA: directie trebuie sa fie 1 pentru fata-spate si 3 pentru stanga-dreapta si 2 pentru sus-jos
 int schimbare(int x, int directie){
   int maxim, minim;
 
   switch (directie){
     case 1: { maxim = m3_fata_max; minim = m3_spate_max; break;}
-    case 2: { maxim = m1_dreapta_max; minim = m1_stanga_max; break;}
+    case 3: { maxim = m1_dreapta_max; minim = m1_stanga_max; break;}
+    case 2: { maxim = m2_sus_max; minim = m2_jos_max; break;}
   }
   if(caz & (1 << (directie - 1) )){
 
@@ -73,10 +73,12 @@ void medie_pwm_spate(int x){
 
 
 void citire_medie(){
-   ch5 = pulseIn(46,HIGH,15000);//citire canal 5 telecomanda
+   m2 = pulseIn(46,HIGH,15000);//citire canal 2 telecomanda
    m3 = pulseIn(48,HIGH,15000); //citire canal 3 telecomanda
    m1 = pulseIn(50, HIGH, 15000); //citire canal 1 telecomanda
    for(int c=1;c<=10;c++){
+     ch2 = pulseIn(46,HIGH, 15000);
+     m2 = (m2 + ch2) / 2;
      ch3 = pulseIn(48,HIGH,15000);
      m3 = (m3 + ch3) / 2;
      ch1 = pulseIn(50,HIGH,15000);
@@ -140,9 +142,9 @@ void Dreapta_simplu(){
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 void comandaST_FATA(){
 
-  if( schimbare(m1, 2) < (m1_centru - 50) && schimbare(m3, 1) > (m3_centru + 50) ){
+  if( schimbare(m1, 3) < (m1_centru - 50) && schimbare(m3, 1) > (m3_centru + 50) ){
       medie_pwm_fata( schimbare(m3, 1) );
-      medie_pwm_stanga( schimbare(m1, 2) );
+      medie_pwm_stanga( schimbare(m1, 3) );
       Serial.println("Comanda ST_FATA");
 
       analogWrite(motor1_a, m3_pwm_fata*coeficient_viraj);
@@ -164,9 +166,9 @@ void comandaST_FATA(){
 
 void comandaST_SPATE(){
 
-  if( schimbare(m1, 2) < (m1_centru - 50) && schimbare(m3, 1) < (m3_centru - 50) ){
+  if( schimbare(m1, 3) < (m1_centru - 50) && schimbare(m3, 1) < (m3_centru - 50) ){
     medie_pwm_spate( schimbare(m3, 1) );
-    medie_pwm_stanga( schimbare(m1, 2) );
+    medie_pwm_stanga( schimbare(m1, 3) );
     Serial.println("Comanda ST_spate");
 
     analogWrite(motor1_a, m3_pwm_spate*coeficient_viraj);
@@ -188,9 +190,9 @@ void comandaST_SPATE(){
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 
 void comandaDR_FATA(){
-  if( schimbare(m1, 2) > (m1_centru + 50) && schimbare(m3, 1) > (m3_centru + 50) ){
+  if( schimbare(m1, 3) > (m1_centru + 50) && schimbare(m3, 1) > (m3_centru + 50) ){
     medie_pwm_fata( schimbare(m3, 1) );
-    medie_pwm_dreapta( schimbare(m1, 2) );
+    medie_pwm_dreapta( schimbare(m1, 3) );
     Serial.println("Comanda DR_fata");
 
     analogWrite(motor1_a, m1_pwm_dreapta); //pwm_dreapta
@@ -208,10 +210,10 @@ void comandaDR_FATA(){
 }
 
 void comandaDR_SPATE(){
-    if( schimbare(m1, 2) > (m1_centru + 50) && schimbare(m3, 1) < (m3_centru - 50) ){
+    if( schimbare(m1, 3) > (m1_centru + 50) && schimbare(m3, 1) < (m3_centru - 50) ){
     Serial.println("Comanda DR_spate");
     medie_pwm_spate( schimbare(m3, 1) );
-    medie_pwm_dreapta( schimbare(m1, 2) );
+    medie_pwm_dreapta( schimbare(m1, 3) );
 
     analogWrite(motor1_a, m1_pwm_dreapta);
     digitalWrite(motor1_b, HIGH);
@@ -235,14 +237,14 @@ void comandaDR_SPATE(){
 //Nota: vezi schema de pe GitHub: mattilda/Scheme/Schema moduri de virare_v1
 void comandaSTDR(){
 
-  if( schimbare(m1, 2) < (m1_centru - 50) ){ //Stanga
-    medie_pwm_stanga( schimbare(m1, 2) );//functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
+  if( schimbare(m1, 3) < (m1_centru - 50) ){ //Stanga
+    medie_pwm_stanga( schimbare(m1, 3) );//functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Serial.println("Comanda Stanga simpla");
     Stanga_simplu();
   }
-  else if( schimbare(m1, 2) > (m1_centru + 50) ){ //Dreapta
+  else if( schimbare(m1, 3) > (m1_centru + 50) ){ //Dreapta
     Serial.println("Comanda Dreapta simpla");
-    medie_pwm_dreapta( schimbare(m1, 2) ); //functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
+    medie_pwm_dreapta( schimbare(m1, 3) ); //functia folosita la conversia inputului de la telecomanda in valori de PWM (100-255)
     Dreapta_simplu();
   }
 }
@@ -302,14 +304,16 @@ void afisare(){
 
 void prelucrare_date(){
   Serial.println("\n Incep prelucrarea datelor");
-    if(m3_fata_max < m3_centru) caz = (caz | 1);
+    if(m3_spate_max > m3_centru) caz = (caz | 1);
     if(m1_stanga_max > m1_centru) caz = (caz | 1 << 1);
+    if(m2_jos_max > m2_centru) caz = caz(caz | 1 << 2);
 
 
     m_fata = 155 / (  schimbare(m3_fata_max, 1) - (m3_centru + 50) );
     m_spate = 155 / ( (m3_centru - 50) - schimbare(m3_spate_max, 1) );
-    m_stanga = 155 / ( (m1_centru - 50) - schimbare(m1_stanga_max, 2) );
-    m_dreapta = 155 / ( schimbare(m1_dreapta_max, 2) - (m1_centru + 50) );
+    m_stanga = 155 / ( (m1_centru - 50) - schimbare(m1_stanga_max, 3) );
+    m_dreapta = 155 / ( schimbare(m1_dreapta_max, 3) - (m1_centru + 50) );
+    m_sus = 
 }
 
 void comenzi(){
@@ -317,11 +321,11 @@ void comenzi(){
         inchar = Serial.read();
           if (inchar == 'c'){
 
-              for(i = 0; i <= 5; i++){
+              for(i = 0; i <= 7; i++){
 
                 if(i == 1){
                   Serial.println("Incep calibrarea.");
-                  Serial.println("\n Tine joystick-ul centrat ");
+                  Serial.println("\n Tine joystick-ul din dreapta centrat ");
                   delay(1000);
                   citire_medie_calibrare();
                   m1_centru = m1;
@@ -330,7 +334,7 @@ void comenzi(){
               }
                if(i == 2){
                  Serial.println("\n #######################################");
-                 Serial.println("\n Tine joystick-ul in fata ");
+                 Serial.println("\n Tine joystick-ul din dreapta in fata ");
                  delay(1000);
                  citire_medie_calibrare();
                  m3_fata_max = m3;
@@ -338,7 +342,7 @@ void comenzi(){
                }
               if(i == 3){
                 Serial.println("\n #######################################");
-                Serial.println("\n Tine joystick-ul in spate ");
+                Serial.println("\n Tine joystick-ul din dreapta in spate ");
                 delay(1000);
                 citire_medie_calibrare();
                  m3_spate_max = m3;
@@ -347,7 +351,7 @@ void comenzi(){
               }
               if(i == 4){
                 Serial.println("\n #######################################");
-                Serial.println("\n Tine joystick-ul in stanga ");
+                Serial.println("\n Tine joystick-ul din dreapta in stanga ");
                 delay(1000);
                 citire_medie_calibrare();
                 m1_stanga_max = m1;
@@ -355,11 +359,27 @@ void comenzi(){
               }
                if(i == 5){
                 Serial.println("\n #######################################");
-                Serial.println("\n Tine joystick-ul in dreapta");
+                Serial.println("\n Tine joystick-ul din dreapta in dreapta");
                 delay(1000);
                 citire_medie_calibrare();
                 m1_dreapta_max = m1;
-                Serial.print("\n Valoare luata: "); Serial.print(m1_dreapta_max); prelucrare_date();
+                Serial.print("\n Valoare luata: "); Serial.print(m1_dreapta_max);
+              }
+              if(i == 6){
+                Serial.println("\n #######################################");
+                Serial.println("\n Tine joystick-ul din stanga in sus");
+                delay(1000);
+                citire_medie_calibrare();
+                m2_sus_max = m2;
+                Serial.print("\n Valoare luata: "); Serial.print(m2_sus_max);
+              }
+              if(i == 7){
+                Serial.println("\n #######################################");
+                Serial.println("\n Tine joystick-ul din stanga in jos");
+                delay(1000);
+                citire_medie_calibrare();
+                m2_jos_max = m2;
+                Serial.print("\n Valoare luata: "); Serial.print(m2_jos_max); prelucrare_date();
               }
 
            }
@@ -375,9 +395,9 @@ void comenzi(){
 
             Serial.print("\n Centru SD: ");Serial.print( m1_centru );
 
-            Serial.print("\n Stanga maxim: ");Serial.print( schimbare( m1_stanga_max, 2) );
+            Serial.print("\n Stanga maxim: ");Serial.print( schimbare( m1_stanga_max, 3) );
             Serial.print("\n Stanga min: ");Serial.print( (m1_centru - 50) );
-            Serial.print("\n Dreapta maxim: ");Serial.print( schimbare( m1_dreapta_max, 2) );
+            Serial.print("\n Dreapta maxim: ");Serial.print( schimbare( m1_dreapta_max, 3) );
             Serial.print("\n Dreapta min: ");Serial.print( (m1_centru + 50) );
 
             Serial.print("\n Caz");Serial.print( caz );
@@ -389,7 +409,7 @@ void comenzi(){
 
 bool centrat(){
 
-  if( ( schimbare(m1, 2) > (m1_centru - 50) ) && ( schimbare(m1, 2) < (m1_centru + 50) ) && ( schimbare(m3, 1) > (m3_centru - 50) ) && ( schimbare(m3, 1) < (m3_centru + 50) ) ){
+  if( ( schimbare(m1, 3) > (m1_centru - 50) ) && ( schimbare(m1, 3) < (m1_centru + 50) ) && ( schimbare(m3, 1) > (m3_centru - 50) ) && ( schimbare(m3, 1) < (m3_centru + 50) ) ){
     Serial.println("E centrat");
     return true;
   }
@@ -410,7 +430,7 @@ void principal(){ //Pune functiile impreuna
 
       if( schimbare(m3, 1) > (m3_centru - 50) && schimbare(m3, 1) < (m3_centru + 50) )// daca joystick-ul nu e deplasat pe axa fata-spate
         comandaSTDR(); //cazul 1 de virare
-      if( schimbare(m1, 2) > (m1_centru - 50) && schimbare(m1, 2) < (m1_centru + 50) )// daca joystick-ul nu e deplasat pe axa dreapta-stanga
+      if( schimbare(m1, 3) > (m1_centru - 50) && schimbare(m1, 3) < (m1_centru + 50) )// daca joystick-ul nu e deplasat pe axa dreapta-stanga
       comandaFATA_SPATE(); //miscare de baza fata-spate
     }
      else {frana();}
