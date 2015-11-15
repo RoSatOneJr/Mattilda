@@ -1,6 +1,6 @@
 <?php
 $date1 = $_GET["date1"];
-$fisier = fopen("mattilda.html", "a") or die("Nu s-a putut deschide fisierul ! (din vina Ruxandrei)");
+$fisier = fopen("mattilda2.html", "a") or die("Nu s-a putut deschide fisierul ! (din vina Ruxandrei)");
 $div1 = "<div>";
 $div2 = "</div> \n";
 $span1 = '<span class="timestamp">';

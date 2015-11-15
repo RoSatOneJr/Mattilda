@@ -1,0 +1,87 @@
+<html>
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+</head>
+
+<style>
+
+body {
+    background-color: #FFF2E5;
+}
+
+iframe{
+  border-color: #eee8d5;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 25px;
+
+}
+
+.butoncss {
+	-moz-box-shadow:inset 0px 0px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 0px 0px 0px #ffffff;
+	box-shadow:inset 0px 0px 0px 0px #ffffff;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #FFFEFB), color-stop(1, #FFF2E5));
+	background:-moz-linear-gradient(top, #FFFEFB 5%, #FFF2E5 100%);
+	background:-webkit-linear-gradient(top, #FFFEFB 5%, #FFF2E5 100%);
+	background:-o-linear-gradient(top, #FFFEFB 5%, #FFF2E5 100%);
+	background:-ms-linear-gradient(top, #FFFEFB 5%, #FFF2E5 100%);
+	background:linear-gradient(to bottom, #FFFEFB 5%, #FFF2E5 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFEFB', endColorstr='#FFF2E5',GradientType=0);
+	background-color:#FFFEFB;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+	border:1px solid #dcdcdc;
+	display:inline-block;
+	cursor:pointer;
+	color:#666666;
+	font-family:Trebuchet MS;
+	font-size:15px;
+	font-weight:bold;
+	padding:10px 16px;
+	text-decoration:none;
+}
+.butoncss:active {
+	position:relative;
+	top:1px;
+}
+
+  </style>
+
+    <center>
+    <iframe id="framerosu" src="led.html" width="240" height= "450"></iframe>
+
+  </center>
+    <script type="text/javascript">
+
+    //  intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 500);
+    //  intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 500);
+    //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 500);
+      function pauzaleduri(){
+        clearInterval(intervalrosu);
+      //  clearInterval(intervalgalben);
+      //  clearInterval(intervalverde);
+
+      }
+
+      function continualeduri(){
+
+        intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 500);
+    //    intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 500);
+      //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 500);
+
+      }
+
+      var myIframe = document.getElementById('frame');
+      myIframe.onload = function () {
+        myIframe.contentWindow.scrollTo(0,9999999);
+      }
+      </script>
+
+  <center>
+  <input type="button" value="Pauza" id="butonPauza" onclick="pauzaleduri()" class="butoncss"></input>
+  <input type="button" value="Continua" id="butonContinua" onclick="continualeduri()" class="butoncss"></input>
+  </center>
+  </body>
+</html>

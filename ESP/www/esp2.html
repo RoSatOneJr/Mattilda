@@ -50,13 +50,11 @@ iframe{
 </style>
 <body>
  <center>
-    <iframe id="frame" src="mattilda.html" width="1000" height="600" scrolling="yes" frameBorder="1"></iframe>
-
+    <iframe id="frame" src="mattilda2.html" width="1000" height="300" scrolling="yes" frameBorder="1"></iframe>
 
     <script type="text/javascript">
 
-          interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
-
+          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
 
           function pauza(){
             clearInterval(interval);
@@ -64,7 +62,6 @@ iframe{
           }
           function continua(){
             interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
-
           }
 
           var myIframe = document.getElementById('frame');
@@ -80,6 +77,9 @@ iframe{
     <input type="button" value="Pauza" id="butonPauza" onclick="pauza()" class="butoncss"></input>
     <input type="button" value="Continua" id="butonContinua" onclick="continua()" class="butoncss"></input>
   </div>
+
 </center>
+
+
 </body>
 </style>
