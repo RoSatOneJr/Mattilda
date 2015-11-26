@@ -123,18 +123,18 @@ void scrie(){
 
 void loop(){
 
-
- while(true){
-  if (Serial.available() > 0) {
+ if(viteza_bruta == 0){
+  while(true){
+   if (Serial.available() > 0) {
       citire_serial = Serial.read()- '0';
       
       c++;
       if(c==1){ viteza_bruta = citire_serial*100;}
       if(c==2){ viteza_bruta += citire_serial*10;}
       if(c==3){ viteza_bruta += citire_serial;c=0;break;}
-  }
-}
-
+     }
+   }
+ }
   if(viteza_bruta != 0 && viteza_bruta != ultima_viteza){
     medieQTR();
     citireQTR();
