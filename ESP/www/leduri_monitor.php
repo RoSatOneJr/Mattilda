@@ -37,6 +37,7 @@ iframe{
   </head>
   <body>
     <!-- Fixed navbar -->
+
     <nav class="navbar navbar-default navbar-fixed-top"  style = "background-color: #ffe6cc">
       <div class="container">
         <div class="navbar-header">
@@ -68,70 +69,7 @@ iframe{
     <!-- Begin page content -->
     <div class="container">
 
-	<div class="col-lg-8">
-	<div class="panel panel-default">
-<div class="panel-heading" style = "background-color: #ffe6cc">
-<h3 class="panel-title">ESP1 Log</h3>
-</div>
-<div class="panel-body">
-<div class="embed-responsive embed-responsive-16by9">
-      <iframe id="esp1" class="embed-responsive-item" src="mattilda1.html" allowfullscreen=""></iframe>
-	      <script type="text/javascript">
-
-          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
-          function pauza(){
-            clearInterval(interval);
-
-          }
-          function continua(){
-            interval = setInterval(function() {$('#esp1').attr('src', $('#esp1').attr('src'));}, 500);
-
-          }
-
-
-          var esp1 = document.getElementById('frame');
-          esp1.onload = function () {
-            esp1.contentWindow.scrollTo(0,9999999);
-          }
-  </script>
-    </div>
-
-<p class="pull-right"><input type="button" value="Pauza" id="butonPauza" onclick="pauza()" class="butoncss btn btn-default"></input>
-    <input type="button" value="Continua" id="butonContinua" onclick="continua()" class="butoncss btn btn-default"></input></p>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading"  style = "background-color: #ffe6cc">
-<h3 class="panel-title">ESP2 Log</h3>
-</div>
-<div class="panel-body">
-<div class="embed-responsive embed-responsive-16by9">
-      <iframe id="esp2" class="embed-responsive-item" src="mattilda2.html" allowfullscreen=""></iframe>
-	      <script type="text/javascript">
-
-          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
-          function pauza2(){
-            clearInterval(interval2);
-
-          }
-          function continua2(){
-            interval2 = setInterval(function() {$('#esp2').attr('src', $('#esp2').attr('src'));}, 500);
-
-          }
-
-
-          var esp2 = document.getElementById('frame');
-          esp2.onload = function () {
-            esp2.contentWindow.scrollTo(0,9999999);
-          }
-  </script>
-    </div>
-
-<p class="pull-right"><input type="button" value="Pauza" id="butonPauza2" onclick="pauza2()" class="butoncss btn btn-default"></input>
-    <input type="button" value="Continua" id="butonContinua2" onclick="continua2()" class="butoncss btn btn-default"></input></p>
-</div>
-</div>
-</div><!-- COL-LG-8 --><div class="col-lg-4">
+<div class="col-lg-4">
 <!-- ==== -->
 <div class="panel panel-default">
 <div class="panel-heading"  style = "background-color: #ffe6cc">
@@ -179,6 +117,7 @@ iframe{
 <!-- ==== -->
 
 <!-- ==== -->
+</div><div class="col-lg-4">
   <div class="panel panel-default">
     <div class="panel-heading"  style = "background-color: #ffe6cc">
     <h3 class="panel-title">Actiuni leduri</h3>
@@ -211,12 +150,12 @@ iframe{
   </div>
 <!-- ==== -->
 
-<div class="panel panel-default">
- <div class="panel-heading"  style = "background-color: #ffe6cc">
- <h3 class="panel-title">Nivele</h3>
- </div>
- <div class="panel-body">
- <div class="embed-responsive embed-responsive-16by9">
+ <div class="panel panel-default">
+  <div class="panel-heading"  style = "background-color: #ffe6cc">
+  <h3 class="panel-title">Nivele</h3>
+  </div>
+  <div class="panel-body">
+  <div class="embed-responsive embed-responsive-16by9">
        <iframe id="lift" class="embed-responsive-item" src="nivele.html" allowfullscreen=""></iframe>
          <script type="text/javascript">
 
@@ -238,9 +177,9 @@ iframe{
    </script>
    </div>
    <center>
-    <input type="button" value="Pauza" id="butonPauza2" onclick="pauza3()" class="butoncss btn btn-default"></input>
+   <input type="button" value="Pauza" id="butonPauza2" onclick="pauza3()" class="butoncss btn btn-default"></input>
      <input type="button" value="Continua" id="butonContinua2" onclick="continua3()" class="butoncss btn btn-default"></input>
-   </center>
+  </center>
  </div>
  </div>
 
