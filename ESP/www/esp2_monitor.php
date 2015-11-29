@@ -78,13 +78,13 @@ iframe{
       <iframe id="esp2" class="embed-responsive-item" src="mattilda2.html" allowfullscreen=""></iframe>
 	      <script type="text/javascript">
 
-          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
+          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 1000);
           function pauza(){
             clearInterval(interval);
 
           }
           function continua(){
-            interval = setInterval(function() {$('#esp2').attr('src', $('#esp2').attr('src'));}, 500);
+            interval = setInterval(function() {$('#esp2').attr('src', $('#esp2').attr('src'));}, 1000);
 
           }
 

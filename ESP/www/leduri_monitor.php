@@ -69,7 +69,7 @@ iframe{
     <!-- Begin page content -->
     <div class="container">
 
-<div class="col-lg-4">
+<div class="col-lg-3">
 <!-- ==== -->
 <div class="panel panel-default">
 <div class="panel-heading"  style = "background-color: #ffe6cc">
@@ -79,9 +79,9 @@ iframe{
 
    <script type="text/javascript">
 
-    //  intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 500);
-    //  intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 500);
-    //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 500);
+    //  intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 1000);
+    //  intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 1000);
+    //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 1000);
       function pauzaleduri(){
         clearInterval(intervalrosu);
       //  clearInterval(intervalgalben);
@@ -91,9 +91,9 @@ iframe{
 
       function continualeduri(){
 
-        intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 500);
-    //    intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 500);
-      //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 500);
+        intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 1000);
+    //    intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 1000);
+      //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 1000);
 
       }
 
@@ -148,6 +148,40 @@ iframe{
        <p class="verde"> LED Verde = [Ce reprezinta ledul verde aici] </p></strong>
     </div>
   </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading"  style = "background-color: #ffe6cc">
+    <h3 class="panel-title">Actiuni nivele</h3>
+    </div>
+    <div class="panel-body">
+    <style>
+      .rosu {
+        color: #dc322f;
+        font-family:"Helvetica Neue", Arial, sans-serif;
+        font-weight:100;
+        -webkit-font-smoothing:antialiased;
+          }
+      .galben {
+        color: #b58900;
+        font-family:"Helvetica Neue", Arial, sans-serif;
+        font-weight:100;
+        -webkit-font-smoothing:antialiased;
+      }
+      .verde {
+        color: #859900;
+        font-family:"Helvetica Neue", Arial, sans-serif;
+        font-weight:100;
+        -webkit-font-smoothing:antialiased;
+      }
+    </style>
+    <p > Nivel 1 - [Ce e nivelul 1 aici] </p>
+       <p > Nivel 2 - [Ce e nivelul 2 aici] </p>
+       <p > Nivel 3 - [Ce e nivelul 3 aici] </p>
+    </div>
+  </div>
+
+
+</div><div class="col-lg-4">
 <!-- ==== -->
 
  <div class="panel panel-default">
@@ -159,13 +193,13 @@ iframe{
        <iframe id="lift" class="embed-responsive-item" src="nivele.html" allowfullscreen=""></iframe>
          <script type="text/javascript">
 
-           //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
+           //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 1000);
            function pauza3(){
              clearInterval(interval3);
 
            }
            function continua3(){
-             interval3 = setInterval(function() {$('#lift').attr('src', $('#lift').attr('src'));}, 500);
+             interval3 = setInterval(function() {$('#lift').attr('src', $('#lift').attr('src'));}, 1000);
 
            }
 

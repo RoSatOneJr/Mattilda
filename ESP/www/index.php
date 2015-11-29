@@ -78,13 +78,13 @@ iframe{
       <iframe id="esp1" class="embed-responsive-item" src="mattilda1.html" allowfullscreen=""></iframe>
 	      <script type="text/javascript">
 
-          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
+          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 1000);
           function pauza(){
             clearInterval(interval);
 
           }
           function continua(){
-            interval = setInterval(function() {$('#esp1').attr('src', $('#esp1').attr('src'));}, 500);
+            interval = setInterval(function() {$('#esp1').attr('src', $('#esp1').attr('src'));}, 1000);
 
           }
 
@@ -109,13 +109,13 @@ iframe{
       <iframe id="esp2" class="embed-responsive-item" src="mattilda2.html" allowfullscreen=""></iframe>
 	      <script type="text/javascript">
 
-          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
+          //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 1000);
           function pauza2(){
             clearInterval(interval2);
 
           }
           function continua2(){
-            interval2 = setInterval(function() {$('#esp2').attr('src', $('#esp2').attr('src'));}, 500);
+            interval2 = setInterval(function() {$('#esp2').attr('src', $('#esp2').attr('src'));}, 1000);
 
           }
 
@@ -141,9 +141,9 @@ iframe{
 
    <script type="text/javascript">
 
-    //  intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 500);
-    //  intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 500);
-    //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 500);
+    //  intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 1000);
+    //  intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 1000);
+    //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 1000);
       function pauzaleduri(){
         clearInterval(intervalrosu);
       //  clearInterval(intervalgalben);
@@ -153,9 +153,9 @@ iframe{
 
       function continualeduri(){
 
-        intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 500);
-    //    intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 500);
-      //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 500);
+        intervalrosu = setInterval(function() {$('#framerosu').attr('src', $('#framerosu').attr('src'));}, 1000);
+    //    intervalgalben = setInterval(function() {$('#framegalben').attr('src', $('#framegalben').attr('src'));}, 1000);
+      //  intervalverde = setInterval(function() {$('#frameverde').attr('src', $('#frameverde').attr('src'));}, 1000);
 
       }
 
@@ -220,13 +220,13 @@ iframe{
        <iframe id="lift" class="embed-responsive-item" src="nivele.html" allowfullscreen=""></iframe>
          <script type="text/javascript">
 
-           //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 500);
+           //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 1000);
            function pauza3(){
              clearInterval(interval3);
 
            }
            function continua3(){
-             interval3 = setInterval(function() {$('#lift').attr('src', $('#lift').attr('src'));}, 500);
+             interval3 = setInterval(function() {$('#lift').attr('src', $('#lift').attr('src'));}, 1000);
 
            }
 
