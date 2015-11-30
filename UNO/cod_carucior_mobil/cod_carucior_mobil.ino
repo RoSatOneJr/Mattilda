@@ -1,20 +1,25 @@
-const int pinCanal4 = 2;
-const int pinCanal5 = 3;
-const int pinCanal7 = 4;
-const int pinCanal8 = 5;
-const int pinReleu = 15;
-const int motorSD1_a = 16;
-const int motorSD2_a = 17;
-const int motorFS1_a = 18;
-const int motorFS2_a = 19;
-const int motorSD1_b = 10;
-const int motorSD2_b = 11;
-const int motorFS1_b = 12;
-const int motorFS2_b = 13;
-const int analogIn = A1;
+const int pinCanal4 = 42; //Fata-Spate
+const int pinCanal5 = 44; //Comanda brate 
+const int pinCanal7 = 46; //Mod doar un motor
+const int pinCanal8 = 48; //Switch Strangere-Desfacere
+
+const int motorSD1_a = 40;
+const int motorSD1_b = 38;
+
+const int motorSD2_a = 36;
+const int motorSD2_b = 34;
+
+const int motorFS1_a = 32;
+const int motorFS1_b = 30;
+
+const int motorFS2_a = 28;
+const int motorFS2_b = 26;
+
+
+const int pinSenzorCurent = A0;
 const int valMaxStr = 2000;//trebuie schimbata
 
-int ok, m4, ch4, ch5, ch7, ch8;
+int ok, m4, ch4, ch5, ch7, m7, ch8;
 int RawValue= 0;
 double Voltage = 0;
 int fata_max, fata_centru, fata_min;
@@ -47,7 +52,7 @@ void setup() {
 
 }
 
-//NOTA: directie trebuie sa fie 1 pentru fata-spate si 2 pentru sttrangere-desfacere
+//NOTA: "directie" trebuie sa fie 1 pentru fata-spate si 2 pentru sttrangere-desfacere
 int schimbare(int x, int directie){
   int maxim, minim;
 
@@ -132,7 +137,7 @@ void caruciorInScurt() {
 
 int val_senz_curent(){
 
-   RawValue = analogRead(analogIn);
+   RawValue = analogRead(pinSenzorCurent);
    Voltage = (RawValue / 1023.0) * 5000; // Gets you mV
 
    if(Voltage < valMaxStr)
@@ -185,15 +190,18 @@ void prelucrare_date(){
 }
 
 void citire_medie() {
-    m4 = pulseIn(pinCanal4, HIGH, 15000);//citire canal 4 telecomanda
+   ch4 = pulseIn(pinCanal4, HIGH, 15000);//citire canal 4 telecomanda
    ch5 = pulseIn(pinCanal5, HIGH, 15000);//citire canal 5 telecomanda
    ch7 = pulseIn(pinCanal7, HIGH, 15000);//citire canal 7 telecomanda
    ch8 = pulseIn(pinCanal8, HIGH, 15000);//citire canal 8 telecomanda
    for (int c=1;c<=10;c++) {
+     ch7 = pulseIn(pinCanal7,HIGH,15000);
      ch4 = pulseIn(pinCanal4,HIGH,15000);
-     m4 = (m4 + ch4) / 2;
+     m4 += ch4;
+     m7 += ch7;
    }
-
+   m7 /= 10;
+   m4 /= 10;
    ok = true;
 }
 
@@ -269,7 +277,7 @@ void citire_medie() {
 
 
 bool centrat(){
-  if ( m4 > schimbare(fata_centru + 50, 1) || m4 < schimbare(fata_centru - 50, 1) ||  schimbare(ch7, 2) > 1500 ) {
+  if ( m4 > schimbare(fata_centru + 50, 1) || m4 < schimbare(fata_centru - 50, 1) ) {
       Serial.println("Nu e centrat");
       return false;
      }
@@ -283,18 +291,22 @@ bool centrat(){
 void principal() {
   citire_medie();
   comenzi();
-  if(ch5 > 1500)
+  if(schimbare(m7, 2) < 1700){
     doarUnMotor = true;
-  else doarUnMotor = false;
+  }
+  else {
+    doarUnMotor = false;
+  }
 
   if ( !centrat() ) {
     comandaFata();
     comandaSpate();
 
-    if(ch8 > 1550)
-      comandaStrangere();
-    else if(ch8 < 1450)
-      comandaDesfacere();
+    if(ch8 > 1550){
+      if(ch5 > 1500)
+        comandaStrangere();
+      else comandaDesfacere();
+    }
 
   }
  else{
