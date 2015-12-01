@@ -85,14 +85,9 @@ iframe{
           }
           function continua(){
             interval = setInterval(function() {$('#esp1').attr('src', $('#esp1').attr('src'));}, 1000);
-
           }
 
 
-          var esp1 = document.getElementById('frame');
-          esp1.onload = function () {
-            esp1.contentWindow.scrollTo(0,9999999);
-          }
   </script>
     </div>
 

@@ -139,8 +139,8 @@ void miscareStrangere() {
     digitalWrite(motorSD2_a, HIGH);
     digitalWrite(motorSD2_b, LOW);
   }
-  
-  
+
+
 }
 
 void miscareDesfacere(){
@@ -184,7 +184,7 @@ void comandaStrangere(){
   if(val_senz_curent() == 1){
       miscareStrangere();
  }
- 
+
 }
 void comandaDesfacere(){
 
@@ -192,14 +192,14 @@ void comandaDesfacere(){
 }
 
 void comandaFata(){
-  
+
   if(schimbare(m4, 1) > (fata_centru + 50) ){
     miscareFata();
   }
 }
 
 void comandaSpate(){
-  
+
   if(schimbare(m4, 1) < (fata_centru - 50) ){
     miscareSpate();
   }
@@ -208,7 +208,7 @@ void comandaSpate(){
 
 
 void prelucrare_date(){
-  
+
   Serial.println("\n Incep prelucrarea datelor");
     if(fata_max < fata_centru) caz = (caz | 1);
     if(strans_max > strans_min) caz = (caz | 1 << 1);
@@ -218,7 +218,7 @@ void prelucrare_date(){
 }
 
 void citire_medie() {
-  
+
    ch4 = pulseIn(pinCanal4, HIGH, 15000);//citire canal 4 telecomanda
    ch5 = pulseIn(pinCanal5, HIGH, 15000);//citire canal 5 telecomanda
    ch7 = pulseIn(pinCanal7, HIGH, 15000);//citire canal 7 telecomanda
@@ -235,7 +235,7 @@ void citire_medie() {
 }
 
  void comenzi(){
-   
+
   if (Serial.available() > 0) {
         inchar = Serial.read();
           if (inchar == 'c'){

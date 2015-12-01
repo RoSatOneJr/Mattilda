@@ -1,4 +1,8 @@
-int pinCanal4 = 38;
+const int pinCanal4 = 42; //Fata-Spate
+const int pinCanal5 = 44; //Comanda pate!
+const int pinCanal7 = 46; //Mod doar un motor
+const int pinCanal8 = 48; //Switch Strangere-Desfacere
+
 int ch4,m4, citireSwitch;
 int pinSwitchStanga = 52;
 int pinSwitchDreapta = 50;
@@ -28,23 +32,23 @@ void Desfacere(){
    Serial.println("Desfacere");Serial.print("\n\n");
     strans = false;
     if(Switch(0) == 0){
-      
+
     digitalWrite(motorSD1_a, LOW);
     digitalWrite(motorSD1_b, HIGH);
     }
-    
+
     if(Switch(0) == 1){
-      
+
     digitalWrite(motorSD1_a, HIGH);
     digitalWrite(motorSD1_b, HIGH);
     }
-    
-    
+
+
     if(Switch(1) == 0){
       digitalWrite(motorSD2_a, LOW);
       digitalWrite(motorSD2_b, HIGH);
     }
-      
+
     if(Switch(1) == 1){
       digitalWrite(motorSD2_a, HIGH);
       digitalWrite(motorSD2_b, HIGH);
@@ -56,14 +60,14 @@ void Desfacere(){
 
 
 void Strangere(){
-  
+
    Serial.print("Strangere \n\n");
-    
+
    if(analogRead(senzor) > 480 && strans == false) {
-     
+
     digitalWrite(motorSD1_a, HIGH);
     digitalWrite(motorSD1_b, LOW);
-        
+
     digitalWrite(motorSD2_a, HIGH);
     digitalWrite(motorSD2_b, LOW);
     }
@@ -72,17 +76,17 @@ void Strangere(){
     strans = true;
     digitalWrite(motorSD1_a, HIGH);
     digitalWrite(motorSD1_b, HIGH);
-        
+
     digitalWrite(motorSD2_a, HIGH);
     digitalWrite(motorSD2_b, HIGH);
    }
-    
+
 }
 
 void Scurt(){
-  
+
    digitalWrite(motorSD1_a, HIGH);
-   digitalWrite(motorSD1_b, HIGH); 
+   digitalWrite(motorSD1_b, HIGH);
    digitalWrite(motorSD2_a, HIGH);
    digitalWrite(motorSD2_b, HIGH);
 }
@@ -90,7 +94,7 @@ void Scurt(){
 /*int mediereSenzor(){
   int medieSenzor = 0;
   for (int c=1; c<=10; c++){
-   medieSenzor += analogRead(senzor); 
+   medieSenzor += analogRead(senzor);
   }
   medieSenzor /= 5;
   return medieSenzor;
