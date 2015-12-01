@@ -24,7 +24,8 @@ void loop(){
  Serial.print("\t mV = "); // shows the voltage measured 
  Serial.print(Voltage,3); // the '3' after voltage allows you to display 3 digits after decimal point
  Serial.print("\t Amps = "); // shows the voltage measured 
- Serial.println(Amps,3); // the '3' after voltage allows you to display 3 digits after decimal point
- delay(250); 
+ Serial.print(Amps,3); // the '3' after voltage allows you to display 3 digits after decimal point
+ Serial.print("\n #######################\n");
+ delay(300); 
  
 }

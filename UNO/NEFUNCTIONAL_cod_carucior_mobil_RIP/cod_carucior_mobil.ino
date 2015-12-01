@@ -1,23 +1,32 @@
 const int pinCanal4 = 42; //Fata-Spate
-const int pinCanal5 = 44; //Comanda brate 
+const int pinCanal5 = 44; //Comanda pate!
 const int pinCanal7 = 46; //Mod doar un motor
 const int pinCanal8 = 48; //Switch Strangere-Desfacere
 
-const int motorSD1_a = 40;
-const int motorSD1_b = 38;
+const int motorSD1_a = 10;
+const int motorSD1_b = 11;
 
-const int motorSD2_a = 36;
-const int motorSD2_b = 34;
+const int motorSD2_a = 12;
+const int motorSD2_b = 13;
 
-const int motorFS1_a = 32;
-const int motorFS1_b = 30;
+const int motorFS1_a = 6;
+const int motorFS1_b = 7;
 
-const int motorFS2_a = 28;
-const int motorFS2_b = 26;
+const int motorFS2_a = 4;
+const int motorFS2_b = 5;
 
 
 const int pinSenzorCurent = A0;
 const int valMaxStr = 2000;//trebuie schimbata
+
+const int pinSwitchStanga = 52;
+const int pinSwitchDreapta = 50;
+
+int stareSwitch;
+int lastSwitch = LOW;
+int citireSwitch;
+long lastDebounceTime = 0;
+long debounceDelay = 50;
 
 int ok, m4, ch4, ch5, ch7, m7, ch8;
 int RawValue= 0;
@@ -37,6 +46,9 @@ void setup() {
   pinMode(pinCanal5, INPUT); //input canal 5
   pinMode(pinCanal7, INPUT); //input canal 7
   pinMode(pinCanal8, INPUT); //input canal 8
+
+  pinMode(pinSwitchStanga, INPUT);
+  pinMode(pinSwitchDreapta, INPUT);
 
   pinMode(motorFS1_a, OUTPUT); //output motorSus Jos 1_a
   pinMode(motorFS1_b, OUTPUT); //output motor Sus Jos 1_b
@@ -69,12 +81,32 @@ int schimbare(int x, int directie){
 }
 
 
-void pwmFata(int x){
+int pwmFata(int x){
   m4_pwm_Fata = (x - schimbare(fata_centru + 50, 1)) * m_fata + 100;
 }
 
 void pwmSpate(int x){
   m4_pwm_Spate = (x - schimbare(fata_min, 1) ) * m_spate;
+}
+
+int Switch(int brat) { //0-stanga; 1-dreapta
+  if(brat == 0) {citireSwitch = digitalRead(pinSwitchStanga);}
+  else {citireSwitch = digitalRead(pinSwitchDreapta);}
+  if (stareSwitch != lastSwitch) {
+
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+
+
+    if (citireSwitch != stareSwitch) {
+      stareSwitch = citireSwitch;
+    }
+  }
+
+  lastSwitch = citireSwitch;
+  return stareSwitch;
 }
 
 
@@ -101,21 +133,23 @@ void miscareSpate() {
 }
 
 void miscareStrangere() {
-  analogWrite(motorSD1_a, 255);
-  digitalWrite(motorSD1_b, LOW);
-
+    digitalWrite(motorSD1_a, HIGH);
+    digitalWrite(motorSD1_b, LOW);
   if(!doarUnMotor){
-    analogWrite(motorSD2_a, 255);
+    digitalWrite(motorSD2_a, HIGH);
     digitalWrite(motorSD2_b, LOW);
   }
+  
+  
 }
 
 void miscareDesfacere(){
-  analogWrite(motorSD1_a, 0);
-  digitalWrite(motorSD1_b, HIGH);
-
-  if(!doarUnMotor){
-    analogWrite(motorSD2_a, 0);
+  if(Switch(0) == 0){
+    digitalWrite(motorSD1_a, LOW);
+    digitalWrite(motorSD1_b, HIGH);
+  }
+  if(!doarUnMotor && Switch(1) == 0){
+    digitalWrite(motorSD2_a, LOW);
     digitalWrite(motorSD2_b, HIGH);
   }
 }
@@ -147,49 +181,44 @@ int val_senz_curent(){
 
 void comandaStrangere(){
 
-  if(val_senz_curent() == 1 && schimbare(ch7, 2) > 1500){
+  if(val_senz_curent() == 1){
       miscareStrangere();
  }
- else brateInScurt();
+ 
 }
-
 void comandaDesfacere(){
 
-  if(val_senz_curent() == 1 && schimbare(ch7, 2) > 1500){
-      miscareDesfacere();
- }
- else brateInScurt();
+  miscareDesfacere();
 }
 
 void comandaFata(){
+  
   if(schimbare(m4, 1) > (fata_centru + 50) ){
     miscareFata();
   }
 }
 
 void comandaSpate(){
+  
   if(schimbare(m4, 1) < (fata_centru - 50) ){
     miscareSpate();
   }
 
 }
 
-void oprireReleu(){
-  digitalWrite(pinReleu, HIGH);
-
-}
 
 void prelucrare_date(){
+  
   Serial.println("\n Incep prelucrarea datelor");
     if(fata_max < fata_centru) caz = (caz | 1);
     if(strans_max > strans_min) caz = (caz | 1 << 1);
-
 
     m_fata = 155 / (  schimbare(fata_max, 1) - schimbare(fata_centru + 50, 1) );
     m_spate = 155 / ( schimbare(fata_centru - 50, 1) - schimbare(fata_min, 1) );
 }
 
 void citire_medie() {
+  
    ch4 = pulseIn(pinCanal4, HIGH, 15000);//citire canal 4 telecomanda
    ch5 = pulseIn(pinCanal5, HIGH, 15000);//citire canal 5 telecomanda
    ch7 = pulseIn(pinCanal7, HIGH, 15000);//citire canal 7 telecomanda
@@ -206,11 +235,12 @@ void citire_medie() {
 }
 
  void comenzi(){
+   
   if (Serial.available() > 0) {
         inchar = Serial.read();
           if (inchar == 'c'){
 
-              for(int i = 0; i <= 5; i++){
+              for(int i = 1; i <= 3; i++){
 
                 if(i == 1){
                   Serial.println("Incep calibrarea.");
@@ -222,7 +252,7 @@ void citire_medie() {
               }
                if(i == 2){
                  Serial.println("\n #######################################");
-                 Serial.println("\n Tine joystick-ul in fata ");
+                 Serial.println("\n Tine joystick-ul in dreapta ");
                  delay(1000);
                  citire_medie();
                  fata_max = m4;
@@ -230,28 +260,12 @@ void citire_medie() {
                }
               if(i == 3){
                 Serial.println("\n #######################################");
-                Serial.println("\n Tine joystick-ul in spate ");
+                Serial.println("\n Tine joystick-ul in stanga ");
                 delay(1000);
                 citire_medie();
                 fata_min = m4;
 
-                 Serial.print("\n Valoare luata: "); Serial.print(fata_min);
-              }
-              if(i == 4){
-                Serial.println("\n #######################################");
-                Serial.println("\n Tine switch-ul din dreapta in sus ");
-                delay(1000);
-                citire_medie();
-                strans_max = ch7;
-                Serial.print("\n Valoare luata: "); Serial.print(strans_max);
-              }
-               if(i == 5){
-                Serial.println("\n #######################################");
-                Serial.println("\n Tine switch-ul din dreapta in jos ");
-                delay(1000);
-                citire_medie();
-                strans_min = ch7;
-                Serial.print("\n Valoare luata: "); Serial.print(strans_min); prelucrare_date();
+                 Serial.print("\n Valoare luata: "); Serial.print(fata_min);prelucrare_date();
               }
 
            }
@@ -302,8 +316,8 @@ void principal() {
     comandaFata();
     comandaSpate();
 
-    if(ch8 > 1550){
-      if(ch5 > 1500)
+    if(ch5 > 1550){
+      if(ch8 > 1500)
         comandaStrangere();
       else comandaDesfacere();
     }
