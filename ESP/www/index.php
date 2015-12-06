@@ -75,7 +75,7 @@ iframe{
 </div>
 <div class="panel-body">
 <div class="embed-responsive embed-responsive-16by9">
-      <iframe id="esp1" class="embed-responsive-item" src="mattilda1.html" allowfullscreen=""></iframe>
+      <iframe id="esp1" class="embed-responsive-item" src="mattilda1.html"></iframe>
 	      <script type="text/javascript">
 
           //interval = setInterval(function() {$('#frame').attr('src', $('#frame').attr('src'));}, 1000);
@@ -85,6 +85,10 @@ iframe{
           }
           function continua(){
             interval = setInterval(function() {$('#esp1').attr('src', $('#esp1').attr('src'));}, 1000);
+          }
+          var myIframe1 = document.getElementById('esp1');
+          myIframe1.onload = function () {
+            myIframe1.contentWindow.scrollTo(0,9999999);
           }
 
 
@@ -114,11 +118,11 @@ iframe{
 
           }
 
-
-          var esp2 = document.getElementById('frame');
-          esp2.onload = function () {
-            esp2.contentWindow.scrollTo(0,9999999);
+          var myIframe2 = document.getElementById('esp2');
+          myIframe2.onload = function () {
+            myIframe2.contentWindow.scrollTo(0,9999999);
           }
+
   </script>
     </div>
 
@@ -155,9 +159,7 @@ iframe{
       }
 
       var leduri = document.getElementById('frame');
-      leduri.onload = function () {
-        leduri.contentWindow.scrollTo(0,9999999);
-      }
+
       </script>
 	   <center>
 <iframe id="framerosu" class="embed-responsive-item" width="240" height= "450" src="led.html" frame-border = "0" allowfullscreen=""></iframe><br>
@@ -227,9 +229,6 @@ iframe{
 
 
            var lift = document.getElementById('frame');
-           lift.onload = function () {
-             lift.contentWindow.scrollTo(0,9999999);
-           }
    </script>
    </div>
    <center>

@@ -12,12 +12,10 @@ $span3 = '<span class="date">';
 //date_default_timezone_set ('Europe/Amsterdam');
 date_default_timezone_set ('Europe/Bucharest');
 
-$timp_GMT = 'GMT ';
-$timp_GMT_val =  date("P");
-$whitespace = ": ";
+
 $timp_HMS = date("H:i:s");
 // $timp_GMT, $timp_GMT_val, $whitespace, $timp_HMS, $whitespace;
-$timestamp = $timp_GMT. $timp_GMT_val. $whitespace. $timp_HMS. $whitespace;
+$timestamp = $timp_HMS.": ";
 echo $timestamp;
 fwrite($fisier, $div1);
 fwrite($fisier, $span1);
