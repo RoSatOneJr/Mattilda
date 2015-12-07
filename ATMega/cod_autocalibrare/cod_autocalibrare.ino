@@ -2,9 +2,9 @@
 //Feautures: Autocalibrare
 //          Folosirea unui singur pin PWM/motor
 
-int m1, m3, m2, ch1, ch3, ch2, ok, c, marja_frana=50, i=0;
+int m1, m3, m2, ch1, ch3, ch2, ch5, ok, c, marja_frana=50, i=0;
 float dif1, dif2, m3_fata_max, m3_spate_max, m1_dreapta_max, m1_stanga_max, m2_sus_max, m2_jos_max;
-int motor1_a=2, motor1_b=30, motor2_a=3, motor2_b=31, motor3_a=4, motor3_b=32, motor4_a=5, motor4_b=33, motorSJ = ;
+int motor1_a=2, motor1_b=30, motor2_a=3, motor2_b=31, motor3_a=4, motor3_b=32, motor4_a=5, motor4_b=33, motorSJ1=0, motorSJ2=0;
 int m3_pwm_fata, m3_pwm_spate, m1_pwm_stanga, m1_pwm_dreapta;
 int coeficient_viraj = 0.25;
 double m3_centru = 1450, m_fata = 1870, m_spate = 1050, m1_centru = 1505, m_dreapta = 1920, m_stanga = 1090, m2_centru, m2_sus, m2_jos;
@@ -23,8 +23,8 @@ void setup() {
   pinMode(motor3_b, OUTPUT); //output motor 3_b
   pinMode(motor4_a, OUTPUT); //output motor 4_a
   pinMode(motor4_b, OUTPUT); //output motor 4_b
-  pinMode(motorSJ, OUTPUT); // output motor Sus Jos
-
+  pinMode(motorSJ1, OUTPUT); // output motor Sus Jos 1
+  pinMode(motorSJ2, OUTPUT); // output motor Sus Jos 2
   ok = false; //bool medie
   Serial.begin(19200); //baud-rate
 
@@ -306,14 +306,14 @@ void prelucrare_date(){
   Serial.println("\n Incep prelucrarea datelor");
     if(m3_spate_max > m3_centru) caz = (caz | 1);
     if(m1_stanga_max > m1_centru) caz = (caz | 1 << 1);
-    if(m2_jos_max > m2_centru) caz = caz(caz | 1 << 2);
+    if(m2_jos_max > m2_centru) caz = (caz | 1 << 2);
 
 
     m_fata = 155 / (  schimbare(m3_fata_max, 1) - (m3_centru + 50) );
     m_spate = 155 / ( (m3_centru - 50) - schimbare(m3_spate_max, 1) );
     m_stanga = 155 / ( (m1_centru - 50) - schimbare(m1_stanga_max, 3) );
     m_dreapta = 155 / ( schimbare(m1_dreapta_max, 3) - (m1_centru + 50) );
-    m_sus = 
+ //   m_sus = 
 }
 
 void comenzi(){
@@ -431,7 +431,7 @@ void principal(){ //Pune functiile impreuna
       if( schimbare(m3, 1) > (m3_centru - 50) && schimbare(m3, 1) < (m3_centru + 50) )// daca joystick-ul nu e deplasat pe axa fata-spate
         comandaSTDR(); //cazul 1 de virare
       if( schimbare(m1, 3) > (m1_centru - 50) && schimbare(m1, 3) < (m1_centru + 50) )// daca joystick-ul nu e deplasat pe axa dreapta-stanga
-      comandaFATA_SPATE(); //miscare de baza fata-spate
+        comandaFATA_SPATE(); //miscare de baza fata-spate
     }
      else {frana();}
     afisare();

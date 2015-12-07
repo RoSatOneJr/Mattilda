@@ -1,26 +1,27 @@
-const int pinCanal4 = 4; //Fata-Spate
-const int pinCanal5 = 5; //Comanda pate!
-const int pinCanal7 = 7; //Mod doar un motor
-const int pinCanal8 = 8; //Switch Strangere-Desfacere
+const int pinCanal4 = 42; //Fata-Spate
+const int pinCanal5 = 44; //Comanda pate!
+const int pinCanal7 = 46; //Mod doar un motor
+const int pinCanal8 = 48; //Switch Strangere-Desfacere
 
-const int motorSD1_a = 10;
+const int motorSD1_a = 10;//stanga
 const int motorSD1_b = 11;
 
-const int motorSD2_a = 12;
+const int motorSD2_a = 12;//dreapta
 const int motorSD2_b = 13;
 
-const int motorFS1_a = 6;
+const int motorFS1_a = 6;//
 const int motorFS1_b = 7;
 
 const int motorFS2_a = 4;
 const int motorFS2_b = 5;
 
-const int senzor_brate = A1;
-const int senzor_fata_spate = A2;
+const int senzor_brate = A0;
+const int senzor_fata_spate = A0;
+
+const int pinSwitchStanga = 52;
+const int pinSwitchDreapta = 50;
 
 int ch4, m4, ch5, ch8, ch7, citireSwitch;
-int pinSwitchStanga = 52;
-int pinSwitchDreapta = 50;
 int strans = false, maxim_fata = false, maxim_spate = false;
 
 
@@ -28,11 +29,37 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(pinCanal4, INPUT);
+  pinMode(pinCanal5, INPUT);
+  pinMode(pinCanal7, INPUT);
+  pinMode(pinCanal8, INPUT);
+  pinMode(pinSwitchStanga, INPUT);
+  pinMode(pinSwitchDreapta, INPUT);
+  pinMode(senzor_brate, INPUT);
+  pinMode(pinCanal4, INPUT);
+  pinMode(motorSD1_a, OUTPUT);
+  pinMode(motorSD1_b, OUTPUT);
+  pinMode(motorSD2_a, OUTPUT);
+  pinMode(motorSD2_b, OUTPUT);
+  pinMode(motorFS1_a, OUTPUT);
+  pinMode(motorFS1_b, OUTPUT);
+  pinMode(motorFS2_a, OUTPUT);
+  pinMode(motorFS2_b, OUTPUT);
+  digitalWrite(motorSD1_a, LOW);
+  digitalWrite(motorSD1_b, LOW);
+  digitalWrite(motorSD2_a, LOW);
+  digitalWrite(motorSD2_b, LOW);
+  digitalWrite(motorFS1_a, LOW);
+  digitalWrite(motorFS1_b, LOW);
+  digitalWrite(motorFS2_a, LOW);
+  digitalWrite(motorFS2_b, LOW);
+  
+  
 }
 
 int Switch(int brat) { //0-stanga; 1-dreapta
   if(brat == 0) {citireSwitch = digitalRead(pinSwitchStanga);}
   else {citireSwitch = digitalRead(pinSwitchDreapta);}
+  Serial.print("Switch: ");Serial.print(citireSwitch);Serial.print("\n"); 
   return citireSwitch;
 }
 
@@ -103,7 +130,7 @@ void Scurt_brate(){
 
 void Fata(){
    Serial.println("Fata");
-   if(analogRead(senzor_fata_spate > 480) && maxim_fata == false){
+   if((analogRead(senzor_fata_spate) > 460) && maxim_fata == false){
     
    digitalWrite(motorFS1_a, HIGH);
    digitalWrite(motorFS1_b, LOW);
@@ -112,34 +139,34 @@ void Fata(){
    maxim_spate = false;
   }
 
-  if(analogRead(senzor_fata_spate < 480) && maxim_fata == false){
+ if((analogRead(senzor_fata_spate)  < 460) && maxim_fata == false){
    digitalWrite(motorFS1_a, HIGH);
    digitalWrite(motorFS1_b, HIGH);
    digitalWrite(motorFS2_a, HIGH);
    digitalWrite(motorFS2_b, HIGH);
    maxim_fata = true;
-  }
+ }
   
 }
 
 void Spate(){
    Serial.println("Spate");
 
-   if(analogRead(senzor_fata_spate > 480) && maxim_spate == false){
-    
-   digitalWrite(motorFS1_a, HIGH);
-   digitalWrite(motorFS1_b, LOW);
-   digitalWrite(motorFS2_a, HIGH);
-   digitalWrite(motorFS2_b, LOW);
-   maxim_fata = false;
-  }
-
-  if(analogRead(senzor_fata_spate < 480) && maxim_spate == false){
+   if((analogRead(senzor_fata_spate) > 460) && maxim_spate == false){
     
    digitalWrite(motorFS1_a, LOW);
    digitalWrite(motorFS1_b, HIGH);
    digitalWrite(motorFS2_a, LOW);
    digitalWrite(motorFS2_b, HIGH);
+   maxim_fata = false;
+  }
+
+ if((analogRead(senzor_fata_spate) < 460 ) && maxim_spate == false){
+
+   digitalWrite(motorFS1_a, HIGH);
+   digitalWrite(motorFS1_b, HIGH);
+   digitalWrite(motorFS2_a, HIGH);
+   digitalWrite(motorFS2_b, HIGH); 
    maxim_spate = true;
   } 
 }
@@ -176,6 +203,9 @@ void loop() {
   if(m4 > 1700) { Fata();}
   if(m4 < 1450) { Spate();}
   if(m4 > 1500 && m4 < 1700) {Scurt_fata_spate();}
+  Serial.print("A0: ");Serial.print(analogRead(A0));Serial.print("\n");
+  Serial.print("A1: ");Serial.print(analogRead(A1));Serial.print("\n");
+  Serial.print("A2: ");Serial.print(analogRead(A2));Serial.print("\n");
  //Serial.println(ch5);
   //Serial.println(m4);
  // Serial.println(ch7);
